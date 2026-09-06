@@ -2,7 +2,7 @@
 run.py
 Єдина точка запуску сервісу Fragrance Wheel Matcher:
 1. Ініціалізує локальну базу даних SQLite.
-2. Проганяє Data Quality Gate та завантажує стартовий каталог бестселерів Brocard.
+2. Проганяє Data Quality Gate та завантажує стартовий каталог бестселерів парфумерії.
 3. Запускає веб-сервер на http://localhost:8000.
 """
 
@@ -20,7 +20,7 @@ from fragrance_matcher.pipeline.ingest import ingest_from_file
 
 def main():
     print("=" * 60)
-    print("  🌸 FRAGRANCE WHEEL MATCHER (Колесо Ароматів Brocard) 🌸")
+    print("  🌸 FRAGRANCE WHEEL MATCHER (Ольфакторне Колесо Ароматів) 🌸")
     print("=" * 60)
 
     # 1. Ініціалізація БД
@@ -33,7 +33,7 @@ def main():
         print(f"Поточна кількість парфумів у базі: {count}")
 
         if count == 0:
-            seed_file = PROJECT_ROOT / "data" / "seed_brocard_catalog.json"
+            seed_file = PROJECT_ROOT / "data" / "seed_catalog.json"
             if seed_file.exists():
                 print(f"\n[2/3] Запуск Data Quality Gate та імпорт каталогу з {seed_file.name}...")
                 res = ingest_from_file(str(seed_file))

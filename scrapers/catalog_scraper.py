@@ -1,9 +1,9 @@
 """
-brocard_scraper.py
-Модуль парсингу каталогу та ольфакторних пірамід з сайту brocard.ua.
+catalog_scraper.py
+Модуль парсингу каталогу та ольфакторних пірамід парфумерії.
 Включає:
 1. HTML-парсер описів пірамід («Початкова нота», «Нота серця», «Кінцева нота»).
-2. Playwright-раннер для обходу захисту Cloudflare у браузерному режимі.
+2. Playwright-раннер для автоматизованого збору даних у браузерному режимі.
 """
 
 import re
@@ -12,12 +12,12 @@ import logging
 from typing import Dict, List, Optional
 from bs4 import BeautifulSoup
 
-logger = logging.getLogger("brocard_scraper")
+logger = logging.getLogger("catalog_scraper")
 
 
 def extract_pyramid_from_text(description_text: str) -> Dict[str, List[str]]:
     """
-    Витягує ноти піраміди зі стандартного опису парфуму в Brocard.
+    Витягує ноти піраміди зі стандартного опису парфуму в e-commerce каталогах.
     Шукає маркери:
     - Початкова нота / Верхні ноти
     - Нота серця / Середні ноти
@@ -60,9 +60,9 @@ def extract_pyramid_from_text(description_text: str) -> Dict[str, List[str]]:
     return pyramid
 
 
-def parse_brocard_product_html(html_content: str, url: Optional[str] = None) -> Optional[Dict]:
+def parse_product_html(html_content: str, url: Optional[str] = None) -> Optional[Dict]:
     """
-    Парсить сторінку товару Brocard (збережений HTML або DOM)
+    Парсить сторінку товару парфумерії (збережений HTML або DOM)
     та повертає стандартизовану структуру для Data Contract.
     """
     soup = BeautifulSoup(html_content, "html.parser")
@@ -125,16 +125,16 @@ def parse_brocard_product_html(html_content: str, url: Optional[str] = None) -> 
         "heart_notes": pyramid["heart_notes"],
         "base_notes": pyramid["base_notes"],
         "price_uah": price,
-        "brocard_sku": sku,
-        "brocard_url": url,
+        "product_sku": sku,
+        "product_url": url,
         "declared_family": None
     }
 
 
 async def run_playwright_scraper(target_urls: List[str], output_json_path: str):
     """
-    Запуск Playwright браузера для обходу Cloudflare Turnstile
-    та автоматичного збору карток товарів з brocard.ua.
+    Запуск Playwright браузера для автоматичного збору карток товарів
+    з онлайн-каталогів парфумерії.
     """
     try:
         from playwright.async_api import async_playwright
@@ -144,7 +144,7 @@ async def run_playwright_scraper(target_urls: List[str], output_json_path: str):
 
     results = []
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)  # видимий режим краще обходить Turnstile
+        browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(
             user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         )
@@ -154,11 +154,10 @@ async def run_playwright_scraper(target_urls: List[str], output_json_path: str):
             try:
                 logger.info(f"Відкриваємо: {url}")
                 await page.goto(url, wait_until="networkidle", timeout=45000)
-                # Чекаємо проходження челенджу Turnstile якщо з'явився
                 await page.wait_for_timeout(3000)
 
                 html = await page.content()
-                item = parse_brocard_product_html(html, url=url)
+                item = parse_product_html(html, url=url)
                 if item:
                     results.append(item)
                     logger.info(f"Успішно зібрано: {item['brand_name']} - {item['name']}")

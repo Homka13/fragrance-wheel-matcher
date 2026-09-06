@@ -32,14 +32,16 @@ def test_circular_distance():
 def test_relationships():
     # 0 -> exact
     assert classify_relationship(0) == "exact"
-    # 1, 2 -> adjacent
+    # 1, 2, 3 -> adjacent
     assert classify_relationship(1) == "adjacent"
     assert classify_relationship(2) == "adjacent"
-    # 6, 7 -> complementary
+    assert classify_relationship(3) == "adjacent"
+    # 5, 6, 7 -> complementary
+    assert classify_relationship(5) == "complementary"
     assert classify_relationship(6) == "complementary"
     assert classify_relationship(7) == "complementary"
-    # 3, 4, 5 -> moderate
-    assert classify_relationship(3) == "moderate"
+    # 4 -> moderate
+    assert classify_relationship(4) == "moderate"
     print("test_relationships: PASSED")
 
 

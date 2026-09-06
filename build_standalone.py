@@ -1,31 +1,69 @@
 """
 build_standalone.py
-Вбудовує повні дані каталогу Brocard та клієнтський рушій метчингу в index.html,
+Вбудовує повні дані каталогу парфумерії та клієнтський рушій метчингу в index.html,
 завдяки чому додаток працює як з бекендом FastAPI/Starlette, так і на GitHub Pages.
 """
 
 import json
+import re
 from pathlib import Path
 from core.wheel_topology import FAMILIES, SUBFAMILIES
+from core.pyramid_classifier import classify_pyramid
 
 BASE_DIR = Path(__file__).resolve().parent
 
 def run_build():
+    seed_path = BASE_DIR / "data" / "seed_catalog.json"
+    with open(seed_path, "r", encoding="utf-8") as f:
+        seed_data = json.load(f)
+
+    # Генерація валідованих парфумів для вбудовування
+    products = []
+    for item in seed_data.get("products", []):
+        primary_subfam, family_code, _ = classify_pyramid(
+            top_notes=item.get("top_notes", []),
+            heart_notes=item.get("heart_notes", []),
+            base_notes=item.get("base_notes", []),
+            declared_family_hint=item.get("declared_family")
+        )
+        products.append({
+            "id": item["id"],
+            "brand_id": item.get("brand_id", item["brand_name"].lower()),
+            "brand_name": item["brand_name"],
+            "name": item["name"],
+            "gender": item.get("gender", "unisex"),
+            "concentration": item.get("concentration", "EDP"),
+            "primary_subfamily_id": primary_subfam,
+            "family_code": family_code,
+            "top_notes": item.get("top_notes", []),
+            "heart_notes": item.get("heart_notes", []),
+            "base_notes": item.get("base_notes", []),
+            "price_uah": item.get("price_uah"),
+            "product_sku": item.get("product_sku"),
+            "product_url": item.get("product_url", "#"),
+            "image_url": item.get("image_url")
+        })
+
     json_path = BASE_DIR / "data" / "embedded_products.json"
-    with open(json_path, "r", encoding="utf-8") as f:
-        products = json.load(f)
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(products, f, ensure_ascii=False, indent=2)
 
     src_html = BASE_DIR / "app" / "static" / "index.html"
     content = src_html.read_text(encoding="utf-8")
 
-    # Створюємо вбудовані JSON рядки
     families_js = json.dumps(FAMILIES, ensure_ascii=False)
     subfamilies_js = json.dumps(SUBFAMILIES, ensure_ascii=False)
     products_js = json.dumps(products, ensure_ascii=False)
 
-    # Замінюємо початкову частину тегу <script>
-    target_start = "<script>"
-    replacement = f"""<script>
+    if "const EMBEDDED_FRAGRANCES =" in content:
+        content = re.sub(r"const EMBEDDED_FRAGRANCES = .*?;\n", f"const EMBEDDED_FRAGRANCES = {products_js};\n", content, count=1)
+        content = re.sub(r"const EMBEDDED_FAMILIES = .*?;\n", f"const EMBEDDED_FAMILIES = {families_js};\n", content, count=1)
+        content = re.sub(r"const EMBEDDED_SUBFAMILIES = .*?;\n", f"const EMBEDDED_SUBFAMILIES = {subfamilies_js};\n", content, count=1)
+        content_updated = content
+    else:
+        # Initial insertion if not present yet
+        target_start = "<script>"
+        replacement = f"""<script>
     // Вбудовані дані каталогу для автономного тестування (GitHub Pages / Standalone)
     const EMBEDDED_FAMILIES = {families_js};
     const EMBEDDED_SUBFAMILIES = {subfamilies_js};
@@ -118,104 +156,7 @@ def run_build():
       return buckets;
     }}"""
 
-    # Також коригуємо initApp та fetchRecommendations
-    old_init = """    async function initApp() {
-      try {
-        const [wheelRes, fragRes] = await Promise.all([
-          fetch('/api/wheel'),
-          fetch('/api/fragrances')
-        ]);
-        const wheelData = await wheelRes.json();
-        const fragData = await fragRes.json();
-
-        subfamilies = wheelData.subfamilies;
-        families = wheelData.families;
-        allFragrances = fragData.fragrances || [];
-
-        document.getElementById('catalogCount').innerText = allFragrances.length;
-
-        populatePerfumeSelect();
-        renderSvgWheel();
-        selectSubfamily('floral_pure');
-      } catch (err) {
-        console.error('Помилка ініціалізації:', err);
-      }
-    }"""
-
-    new_init = """    async function initApp() {
-      try {
-        const testRes = await fetch('/api/wheel');
-        if (testRes.ok) {
-          isServerMode = true;
-          const [wheelData, fragData] = await Promise.all([
-            testRes.json(),
-            fetch('/api/fragrances').then(r => r.json())
-          ]);
-          subfamilies = wheelData.subfamilies;
-          families = wheelData.families;
-          allFragrances = fragData.fragrances || [];
-        } else {
-          throw new Error('API unavailable');
-        }
-      } catch (err) {
-        isServerMode = false;
-        subfamilies = EMBEDDED_SUBFAMILIES;
-        families = EMBEDDED_FAMILIES;
-        allFragrances = EMBEDDED_FRAGRANCES;
-      }
-
-      document.getElementById('catalogCount').innerText = allFragrances.length;
-      populatePerfumeSelect();
-      renderSvgWheel();
-      selectSubfamily('floral_pure');
-    }"""
-
-    old_fetch_rec = """    async function fetchRecommendations(subfamilyId, referenceId) {
-      try {
-        const body = {
-          subfamily_id: subfamilyId,
-          reference_fragrance_id: referenceId
-        };
-        const res = await fetch('/api/match', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
-        currentRecommendations = data.recommendations || { exact: [], adjacent: [], complementary: [] };
-        renderRecommendations();
-      } catch (err) {
-        console.error('Помилка отримання рекомендацій:', err);
-      }
-    }"""
-
-    new_fetch_rec = """    async function fetchRecommendations(subfamilyId, referenceId) {
-      if (isServerMode) {
-        try {
-          const body = {
-            subfamily_id: subfamilyId,
-            reference_fragrance_id: referenceId
-          };
-          const res = await fetch('/api/match', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
-          const data = await res.json();
-          currentRecommendations = data.recommendations || { exact: [], adjacent: [], complementary: [] };
-        } catch (err) {
-          currentRecommendations = clientSideMatching(subfamilyId, referenceId);
-        }
-      } else {
-        currentRecommendations = clientSideMatching(subfamilyId, referenceId);
-      }
-      renderRecommendations();
-    }"""
-
-    # Виконуємо заміни
-    content_updated = content.replace(target_start, replacement, 1)
-    content_updated = content_updated.replace(old_init, new_init, 1)
-    content_updated = content_updated.replace(old_fetch_rec, new_fetch_rec, 1)
+        content_updated = content.replace(target_start, replacement, 1)
 
     # Зберігаємо
     src_html.write_text(content_updated, encoding="utf-8")

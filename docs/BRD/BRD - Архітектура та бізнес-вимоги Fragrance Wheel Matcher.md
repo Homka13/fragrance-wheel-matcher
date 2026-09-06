@@ -1,6 +1,6 @@
 # BRD: Архітектура та бізнес-вимоги системи підбору ароматів (Fragrance Wheel Matcher)
 
-**Проєкт:** Fragrance Wheel Matcher (Ольфакторний рекомендаційний сервіс для клієнтів Brocard)  
+**Проєкт:** Fragrance Wheel Matcher (Ольфакторний рекомендаційний сервіс підбору парфумерії)  
 **Автор / Архітектор:** Yukhym Shulha  
 **Статус:** MVP розроблено, протестовано та готове до демонстрації  
 **Технічний стек:** Python 3.14, Starlette (ASGI), SQLite 3 / PostgreSQL 15+, SQLAlchemy, Pydantic, Playwright, Vanilla JS / SVG (Dark Theme)
@@ -10,7 +10,7 @@
 ## 1. Бізнес-мета та проблема (Problem Statement)
 
 ### Проблема в ритейлі парфумерії:
-* **Сліпий вибір та перевантаження (Olfactory Fatigue):** У фізичному магазині клієнт може спробувати максимум 3–4 аромати, після чого нюхові рецептори втомлюються. В онлайні (brocard.ua) вибір ускладнений тим, що текстові описи на кшталт «витончений, чуттєвий аромат» не дають уявлення про реальний характер композиції.
+* **Сліпий вибір та перевантаження (Olfactory Fatigue):** У фізичному магазині клієнт може спробувати максимум 3–4 аромати, після чого нюхові рецептори втомлюються. В онлайні вибір ускладнений тим, що текстові описи на кшталт «витончений, чуттєвий аромат» не дають уявлення про реальний характер композиції.
 * **Filter Bubble у звичайних рекомендаціях:** Більшість інтернет-магазинів пропонують як «схожі товари» лише інші фланкери того самого бренду або ті самі бестселери, не даючи клієнту персоналізованого відчуття відкриття нового.
 
 ### Бізнес-рішення:
@@ -48,16 +48,16 @@
 * **Локальний запуск (Zero-Setup):** База SQLite (`fragrances.db`) створюється автоматично з попередньо заповненими довідниками Колеса та каталогом бестселерів.
 * **Продакшн схема PostgreSQL ([`01_postgres_schema.sql`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/db/01_postgres_schema.sql)):** реляційні таблиці з масивами `TEXT[]`, індексами та підтримкою ідемпотентних запитів `ON CONFLICT DO UPDATE`.
 
-### 2.5. Скрапер каталогу Brocard ([`brocard_scraper.py`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/scrapers/brocard_scraper.py))
-* Браузерний рушій на базі **Playwright** для безпечного проходження захисту Cloudflare Turnstile на сайті `brocard.ua`.
+#### 2.5. Модуль імпорту каталогу ([`catalog_scraper.py`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/scrapers/catalog_scraper.py))
+* Браузерний рушій на базі **Playwright** для безпечного збору карток товарів та ольфакторних композицій.
 * Парсер текстових описів ольфакторної піраміди («Початкова нота», «Нота серця», «Кінцева нота»).
-* Стартовий верифікований набір бестселерів Brocard ([`seed_brocard_catalog.json`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/data/seed_brocard_catalog.json)): Lancôme, Carolina Herrera, Chanel, Tom Ford, YSL, Dior, Kilian, MFK, Giorgio Armani з цінами та артикулами.
+* Стартовий верифікований набір бестселерів ([`seed_catalog.json`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/data/seed_catalog.json)): Lancôme, Carolina Herrera, Chanel, Tom Ford, YSL, Dior, Kilian, MFK, Giorgio Armani з цінами та артикулами.
 
 ### 2.6. Інтерактивний вебінтерфейс ([`index.html`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/app/static/index.html))
 * Графічне SVG-колесо з 14 радіальними секторами у преміальній темній темі (Dark Minimalist).
 * Динамічне підсвічування: активний сектор, суміжні зони (напівпрозоре сяйво) та контрастна зона (штриховий маркер).
-* Селектор парфумів Brocard для миттєвого підбору альтернатив під відомий флакон.
-* Картки рекомендацій з розгорнутою пірамідою (верх/серце/база), ціною в грн та прямим посиланням на картку товару в Brocard.
+* Селектор парфумів для миттєвого підбору альтернатив під відомий флакон.
+* Картки рекомендацій з розгорнутою пірамідою (верх/серце/база), ціною в грн та прямим переходом.
 
 ---
 
@@ -66,7 +66,7 @@
 ```mermaid
 flowchart TD
     subgraph Data Layer [Збір та якість даних]
-        A[Brocard.ua Парсер / Seed Catalog] --> B[Data Quality Gate - Pydantic]
+        A[Каталог парфумерії / Seed Catalog] --> B[Data Quality Gate - Pydantic]
         B -->|Немає нот / групи| C[Error Log / Реєстр відхилених]
         B -->|Валідний парфум| D[Pyramid Classifier: Ваговий розрахунок нот]
         D --> E[(SQLite / PostgreSQL: fragrances.db)]

@@ -39,8 +39,8 @@ CREATE TABLE IF NOT EXISTS fragrances (
     heart_notes TEXT[] DEFAULT '{}',
     base_notes TEXT[] DEFAULT '{}',
     price_uah NUMERIC(10, 2),
-    brocard_sku VARCHAR(100),
-    brocard_url TEXT,
+    product_sku VARCHAR(100),
+    product_url TEXT,
     image_url TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()

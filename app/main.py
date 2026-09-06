@@ -20,7 +20,7 @@ from ..db.models import FragranceModel, BrandModel
 from ..pipeline.ingest import ingest_from_file
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
-SEED_FILE = Path(__file__).resolve().parent.parent / "data" / "seed_brocard_catalog.json"
+SEED_FILE = Path(__file__).resolve().parent.parent / "data" / "seed_catalog.json"
 
 
 async def get_wheel_data(request):
@@ -93,7 +93,7 @@ async def match_fragrances(request):
 
 
 async def seed_database(request):
-    """Перезавантажує каталог бестселерів Brocard у БД."""
+    """Перезавантажує каталог бестселерів парфумерії у БД."""
     if not SEED_FILE.exists():
         return JSONResponse({"status": "error", "message": "Файл seed каталогу не знайдено"}, status_code=404)
 
@@ -118,7 +118,7 @@ async def lifespan(app):
     with get_db() as session:
         count = session.query(FragranceModel).count()
         if count == 0 and SEED_FILE.exists():
-            print("База порожня. Автоматичний імпорт seed_brocard_catalog.json...")
+            print("База порожня. Автоматичний імпорт seed_catalog.json...")
             ingest_from_file(str(SEED_FILE))
     yield
 

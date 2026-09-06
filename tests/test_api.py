@@ -25,7 +25,8 @@ def test_api_endpoints():
     assert len(wheel_data["subfamilies"]) == 14
     assert len(wheel_data["families"]) == 4
 
-    # 3. Отримання каталогу парфумів
+    # 3. Наповнення та отримання каталогу парфумів
+    client.post("/api/seed")
     res_frags = client.get("/api/fragrances")
     assert res_frags.status_code == 200
     frag_data = res_frags.json()

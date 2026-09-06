@@ -1,30 +1,5 @@
 [
   {
-    "id": "valid_rose_perfume",
-    "brand_id": "lancôme",
-    "brand_name": "Lancôme",
-    "name": "Pure Rose Elixir",
-    "gender": "unisex",
-    "concentration": "EDP",
-    "primary_subfamily_id": "floral_pure",
-    "family_code": "floral",
-    "top_notes": [
-      "рожевий перець"
-    ],
-    "heart_notes": [
-      "троянда",
-      "півонія"
-    ],
-    "base_notes": [
-      "мускус",
-      "кедр"
-    ],
-    "price_uah": null,
-    "brocard_sku": null,
-    "brocard_url": null,
-    "image_url": null
-  },
-  {
     "id": "lancome_la_vie_est_belle",
     "brand_id": "lancome",
     "brand_name": "Lancôme",
@@ -49,8 +24,8 @@
       "боби тонка"
     ],
     "price_uah": 4850.0,
-    "brocard_sku": "LAN-LVEB-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-lancome-la-vie-est-belle",
+    "product_sku": "LAN-LVEB-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -79,8 +54,8 @@
       "кедр"
     ],
     "price_uah": 4420.0,
-    "brocard_sku": "LAN-IDL-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-lancome-idole",
+    "product_sku": "LAN-IDL-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -112,8 +87,8 @@
       "ваніль"
     ],
     "price_uah": 4990.0,
-    "brocard_sku": "LAN-TRS-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-lancome-tresor",
+    "product_sku": "LAN-TRS-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -149,8 +124,8 @@
       "кедр"
     ],
     "price_uah": 5200.0,
-    "brocard_sku": "CH-GG-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-carolina-herrera-good-girl",
+    "product_sku": "CH-GG-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -174,8 +149,8 @@
       "ветивер"
     ],
     "price_uah": 5400.0,
-    "brocard_sku": "CH-VGG-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-carolina-herrera-very-good-girl",
+    "product_sku": "CH-VGG-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -202,8 +177,8 @@
       "амброве дерево"
     ],
     "price_uah": 4750.0,
-    "brocard_sku": "CH-BB-100",
-    "brocard_url": "https://www.brocard.ua/ua/product/tualetna-voda-carolina-herrera-bad-boy",
+    "product_sku": "CH-BB-100",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -236,8 +211,8 @@
       "опопонакс"
     ],
     "price_uah": 6800.0,
-    "brocard_sku": "CHL-CCM-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/chanel-coco-mademoiselle",
+    "product_sku": "CHL-CCM-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -270,8 +245,8 @@
       "білий мускус"
     ],
     "price_uah": 6400.0,
-    "brocard_sku": "CHL-BDC-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/chanel-bleu-de-chanel",
+    "product_sku": "CHL-BDC-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -297,8 +272,8 @@
       "смоли"
     ],
     "price_uah": 11500.0,
-    "brocard_sku": "TF-TBV-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/tom-ford-tobacco-vanille",
+    "product_sku": "TF-TBV-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -326,8 +301,8 @@
       "амбра"
     ],
     "price_uah": 11900.0,
-    "brocard_sku": "TF-OW-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/tom-ford-oud-wood",
+    "product_sku": "TF-OW-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -358,8 +333,8 @@
       "ваніль"
     ],
     "price_uah": 13800.0,
-    "brocard_sku": "TF-LC-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/tom-ford-lost-cherry",
+    "product_sku": "TF-LC-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -388,8 +363,8 @@
       "кашемірове дерево"
     ],
     "price_uah": 4980.0,
-    "brocard_sku": "YSL-BO-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/yves-saint-laurent-black-opium",
+    "product_sku": "YSL-BO-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -419,8 +394,8 @@
       "сіра амбра"
     ],
     "price_uah": 5150.0,
-    "brocard_sku": "YSL-LIB-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/yves-saint-laurent-libre",
+    "product_sku": "YSL-LIB-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -449,8 +424,8 @@
       "лабданум"
     ],
     "price_uah": 5600.0,
-    "brocard_sku": "DIOR-SVG-60",
-    "brocard_url": "https://www.brocard.ua/ua/product/dior-sauvage",
+    "product_sku": "DIOR-SVG-60",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -490,8 +465,8 @@
       "ветивер"
     ],
     "price_uah": 5300.0,
-    "brocard_sku": "DIOR-FHR-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/dior-fahrenheit",
+    "product_sku": "DIOR-FHR-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -529,8 +504,8 @@
       "амбра"
     ],
     "price_uah": 4600.0,
-    "brocard_sku": "GA-ADG-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/giorgio-armani-acqua-di-gio",
+    "product_sku": "GA-ADG-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -555,8 +530,8 @@
       "кедр"
     ],
     "price_uah": 12900.0,
-    "brocard_sku": "MFK-BR540-70",
-    "brocard_url": "https://www.brocard.ua/ua/product/maison-francis-kurkdjian-baccarat-rouge-540",
+    "product_sku": "MFK-BR540-70",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=400&q=80"
   },
   {
@@ -582,8 +557,8 @@
       "сандал"
     ],
     "price_uah": 10500.0,
-    "brocard_sku": "KIL-ASH-50",
-    "brocard_url": "https://www.brocard.ua/ua/product/kilian-angels-share",
+    "product_sku": "KIL-ASH-50",
+    "product_url": "#",
     "image_url": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80"
   }
 ]

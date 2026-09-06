@@ -21,8 +21,8 @@ class RawFragranceInput(BaseModel):
     base_notes: List[str] = Field(default_factory=list)
     declared_family: Optional[str] = None
     price_uah: Optional[float] = None
-    brocard_sku: Optional[str] = None
-    brocard_url: Optional[str] = None
+    product_sku: Optional[str] = None
+    product_url: Optional[str] = None
     image_url: Optional[str] = None
 
     @field_validator("name", "brand_name")
@@ -47,6 +47,6 @@ class ValidatedFragrance(BaseModel):
     heart_notes: List[str]
     base_notes: List[str]
     price_uah: Optional[float] = None
-    brocard_sku: Optional[str] = None
-    brocard_url: Optional[str] = None
+    product_sku: Optional[str] = None
+    product_url: Optional[str] = None
     image_url: Optional[str] = None

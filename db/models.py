@@ -77,8 +77,8 @@ class FragranceModel(Base):
     base_notes = Column(JSON, default=list)
 
     price_uah = Column(Float, nullable=True)
-    brocard_sku = Column(String(100), nullable=True)
-    brocard_url = Column(Text, nullable=True)
+    product_sku = Column(String(100), nullable=True)
+    product_url = Column(Text, nullable=True)
     image_url = Column(Text, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -101,8 +101,8 @@ class FragranceModel(Base):
             "heart_notes": self.heart_notes or [],
             "base_notes": self.base_notes or [],
             "price_uah": self.price_uah,
-            "brocard_sku": self.brocard_sku,
-            "brocard_url": self.brocard_url,
+            "product_sku": self.product_sku,
+            "product_url": self.product_url,
             "image_url": self.image_url
         }
 

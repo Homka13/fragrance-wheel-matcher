@@ -90,8 +90,8 @@ def process_and_ingest_records(raw_items: List[Dict]) -> Dict:
             heart_notes=raw.heart_notes,
             base_notes=raw.base_notes,
             price_uah=raw.price_uah,
-            brocard_sku=raw.brocard_sku,
-            brocard_url=raw.brocard_url,
+            product_sku=raw.product_sku,
+            product_url=raw.product_url,
             image_url=raw.image_url
         )
         validated_list.append(val)
@@ -118,8 +118,8 @@ def process_and_ingest_records(raw_items: List[Dict]) -> Dict:
                 fragrance.heart_notes = val.heart_notes
                 fragrance.base_notes = val.base_notes
                 fragrance.price_uah = val.price_uah
-                fragrance.brocard_sku = val.brocard_sku
-                fragrance.brocard_url = val.brocard_url
+                fragrance.product_sku = val.product_sku
+                fragrance.product_url = val.product_url
                 fragrance.image_url = val.image_url
             else:
                 fragrance = FragranceModel(
@@ -133,8 +133,8 @@ def process_and_ingest_records(raw_items: List[Dict]) -> Dict:
                     heart_notes=val.heart_notes,
                     base_notes=val.base_notes,
                     price_uah=val.price_uah,
-                    brocard_sku=val.brocard_sku,
-                    brocard_url=val.brocard_url,
+                    product_sku=val.product_sku,
+                    product_url=val.product_url,
                     image_url=val.image_url
                 )
                 session.add(fragrance)
