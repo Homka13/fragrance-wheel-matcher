@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fragrance Wheel Matcher | Підбір ароматів</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0a0d14;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-hover: rgba(26, 34, 54, 0.9);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(232, 121, 249, 0.4);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-floral: #e879f9;
+      --accent-oriental: #f59e0b;
+      --accent-woody: #10b981;
+      --accent-fresh: #06b6d4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(232, 121, 249, 0.07) 0%, transparent 40%),
+        radial-gradient(circle at 85% 75%, rgba(6, 182, 212, 0.06) 0%, transparent 45%);
+    }
+
+    header {
+      padding: 1.75rem 2rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 13, 20, 0.85);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-logo .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-floral), var(--accent-fresh));
+      box-shadow: 0 0 12px var(--accent-floral);
+    }
+    .brand-logo h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Ліва панель: Колесо та фільтри */
+    .wheel-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.75rem;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: sticky;
+      top: 6rem;
+    }
+
+    .panel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: 0.25rem;
+      text-align: center;
+    }
+    .panel-hint {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .selector-box {
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .selector-box label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .custom-select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .custom-select:focus {
+      border-color: var(--border-focus);
+      background: rgba(255, 255, 255, 0.07);
+    }
+    .custom-select option {
+      background: #121826;
+      color: var(--text-main);
+    }
+
+    /* SVG Колесо */
+    .wheel-container {
+      position: relative;
+      width: 380px;
+      height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #wheelSvg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+    }
+    .sector-slice {
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      stroke: #0a0d14;
+      stroke-width: 2px;
+    }
+    .sector-slice:hover {
+      filter: brightness(1.25);
+    }
+    .sector-slice.active {
+      stroke: #ffffff;
+      stroke-width: 3px;
+      filter: drop-shadow(0 0 8px currentColor) brightness(1.3);
+    }
+    .sector-slice.adjacent {
+      opacity: 0.9;
+      stroke: rgba(255, 255, 255, 0.6);
+      stroke-width: 2px;
+    }
+    .sector-slice.complementary {
+      opacity: 0.9;
+      stroke: #ffffff;
+      stroke-width: 2px;
+      stroke-dasharray: 4, 3;
+    }
+    .sector-slice.dimmed {
+      opacity: 0.25;
+    }
+
+    /* Центральний інфо-круг */
+    .wheel-center-info {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(14, 18, 28, 0.95);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.75rem;
+      pointer-events: none;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+    }
+    .center-family {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+    .center-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 0.3rem;
+    }
+    .center-notes {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Легенда кольорів */
+    .wheel-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+      width: 100%;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* Права панель: Рекомендації */
+    .results-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .tabs-header {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem 1.1rem;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .tab-btn.active {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+      font-weight: 600;
+    }
+    .tab-badge {
+      background: rgba(255, 255, 255, 0.15);
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 12px;
+    }
+
+    /* Блоки категорій */
+    .bucket-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .bucket-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .bucket-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .bucket-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Сітка карток парфумів */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .fragrance-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .fragrance-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    .card-brand {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .card-score {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      line-height: 1.3;
+    }
+    .card-concentration {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.85rem;
+    }
+
+    /* Піраміда в картці */
+    .pyramid-box {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 8px;
+      padding: 0.6rem 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.73rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .pyramid-line {
+      display: flex;
+      gap: 0.3rem;
+      align-items: baseline;
+    }
+    .pyramid-label {
+      color: var(--text-muted);
+      min-width: 50px;
+      font-weight: 500;
+    }
+    .pyramid-values {
+      color: #e5e7eb;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 0.75rem;
+      margin-top: 0.25rem;
+    }
+    .card-price {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .card-link {
+      font-size: 0.75rem;
+      color: var(--accent-floral);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      transition: opacity 0.2s ease;
+    }
+    .card-link:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    /* Порожній стан */
+    .empty-state {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      border: 1px dashed var(--border-color);
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-logo">
+      <div class="dot"></div>
+      <div>
+        <h1>Fragrance Wheel Matcher</h1>
+        <div class="brand-subtitle">Система підбору на базі Колеса Майкла Едвардса</div>
+      </div>
+    </div>
+    <div id="statsBadge" style="font-size: 0.8rem; color: var(--text-muted);">
+      Каталог Brocard: <span id="catalogCount" style="color: #fff; font-weight: 600;">0</span> парфумів
+    </div>
+  </header>
+
+  <main>
+    <!-- Ліва панель з Колесом -->
+    <section class="wheel-panel">
+      <h2 class="panel-title">Колесо Ароматів</h2>
+      <p class="panel-hint">Клікніть на сектор для підбору або оберіть парфум-референс</p>
+
+      <div class="selector-box">
+        <label for="perfumeSelect">Швидкий підбір за ароматом Brocard:</label>
+        <select id="perfumeSelect" class="custom-select">
+          <option value="">-- Оберіть свій парфум для підбору --</option>
+        </select>
+      </div>
+
+      <!-- Інтерактивне Колесо SVG -->
+      <div class="wheel-container">
+        <svg id="wheelSvg" viewBox="-200 -200 400 400"></svg>
+        <div class="wheel-center-info" id="wheelCenter">
+          <div class="center-family" id="centerFamily">Сімейство</div>
+          <div class="center-name" id="centerName">Оберіть акорд</div>
+          <div class="center-notes" id="centerNotes">Натисніть на сектор колеса</div>
+        </div>
+      </div>
+
+      <!-- Легенда сімейств -->
+      <div class="wheel-legend">
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-floral);"></div>Квіткові</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-oriental);"></div>Східні</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-woody);"></div>Деревні</div>
+        <div class="legend-item"><div class="legend-dot" style="background: var(--accent-fresh);"></div>Свіжі</div>
+      </div>
+    </section>
+
+    <!-- Права панель з результатами -->
+    <section class="results-panel">
+      <div class="tabs-header">
+        <button class="tab-btn active" data-tab="all">
+          Всі рекомендації <span class="tab-badge" id="badgeAll">0</span>
+        </button>
+        <button class="tab-btn" data-tab="exact">
+          🎯 Точний збіг <span class="tab-badge" id="badgeExact">0</span>
+        </button>
+        <button class="tab-btn" data-tab="adjacent">
+          🌿 Гармонійні сусіди <span class="tab-badge" id="badgeAdjacent">0</span>
+        </button>
+        <button class="tab-btn" data-tab="complementary">
+          ⚡ Сміливий контраст <span class="tab-badge" id="badgeComplementary">0</span>
+        </button>
+      </div>
+
+      <!-- Кошик 1: Точний збіг -->
+      <div class="bucket-section" id="sectionExact">
+        <div class="bucket-header">
+          <div>
+            <h3 class="bucket-title">🎯 Точний збіг (Exact Match)</h3>
+            <p class="bucket-desc">Аромати з тієї самої ольфакторної підгрупи з максимально ідентичним характером і розкриттям</p>
+          </div>
+        </div>
+        <div class="cards-grid" id="gridExact"></div>
+      </div>
+
+      <!-- Кошик 2: Суміжні акорди -->
+      <div class="bucket-section" id="sectionAdjacent">
+        <div class="bucket-header">
+          <div>
+            <h3 class="bucket-title">🌿 Гармонійні альтернативи (Adjacent Segments)</h3>
+            <p class="bucket-desc">Безпечна зона відкриттів: суміжні сектори Колеса (відхилення 1–2 кроки). Знайомий профіль з новим відтінком</p>
+          </div>
+        </div>
+        <div class="cards-grid" id="gridAdjacent"></div>
+      </div>
+
+      <!-- Кошик 3: Контрастні / Комплементарні -->
+      <div class="bucket-section" id="sectionComplementary">
+        <div class="bucket-header">
+          <div>
+            <h3 class="bucket-title">⚡ Сміливий контраст (Complementary Contrasts)</h3>
+            <p class="bucket-desc">Діаметрально протилежний бік Колеса: неочевидні, яскраві контрастні композиції для зміни настрою</p>
+          </div>
+        </div>
+        <div class="cards-grid" id="gridComplementary"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Вбудовані дані каталогу для автономного тестування (GitHub Pages / Standalone)
+    const EMBEDDED_FAMILIES = {"floral": {"code": "floral", "name_uk": "Квіткові", "name_en": "Floral", "color_hex": "#E879F9", "profile": "Романтичні, пудрові, елегантні, класичні"}, "oriental": {"code": "oriental", "name_uk": "Східні (Бурштинові)", "name_en": "Oriental / Amber", "color_hex": "#F59E0B", "profile": "Чуттєві, теплі, насичені, пряні, огортаючі"}, "woody": {"code": "woody", "name_uk": "Деревні", "name_en": "Woody", "color_hex": "#10B981", "profile": "Землянисті, строгі, глибокі, шляхетні, сухі"}, "fresh": {"code": "fresh", "name_uk": "Свіжі", "name_en": "Fresh", "color_hex": "#06B6D4", "profile": "Енергійні, чисті, яскраві, бадьорі, іскристі"}};
+    const EMBEDDED_SUBFAMILIES = [{"id": "floral_pure", "ring_index": 0, "family_code": "floral", "name_uk": "Квіткові", "name_en": "Floral", "key_ingredients": ["троянда", "жасмин", "конвалія", "півонія", "гарденія", "тубероза"], "profile": "Свіжозрізані квіти, солодкі романтичні пелюстки", "color_hex": "#F472B6"}, {"id": "floral_soft", "ring_index": 1, "family_code": "floral", "name_uk": "М'які квіткові", "name_en": "Soft Floral", "key_ingredients": ["ірис", "пудрові ноти", "фіалка", "альдегіди", "мускус"], "profile": "Оксамитові, ніжні, пудрові, витончено-ностальгічні", "color_hex": "#EC4899"}, {"id": "floral_oriental", "ring_index": 2, "family_code": "floral", "name_uk": "Східно-квіткові", "name_en": "Floral Oriental", "key_ingredients": ["флердоранж", "османтус", "гвоздика", "солодка спеція", "іланг-іланг"], "profile": "Теплі квіти з пряним відтінком та пікантним шлейфом", "color_hex": "#D946EF"}, {"id": "oriental_soft", "ring_index": 3, "family_code": "oriental", "name_uk": "М'які східні", "name_en": "Soft Oriental", "key_ingredients": ["ладан", "бензоїн", "м'яка амбра", "кардамон", "мускатний горіх"], "profile": "М'які смоли, димні пахощі, приглушена тепла солодкість", "color_hex": "#FB923C"}, {"id": "oriental_pure", "ring_index": 4, "family_code": "oriental", "name_uk": "Східні", "name_en": "Oriental", "key_ingredients": ["ваніль", "смоли", "боби тонка", "амбра", "опопонакс"], "profile": "Багаті, п'янкі, розкішні, огортаючі східні акорди", "color_hex": "#F59E0B"}, {"id": "oriental_woody", "ring_index": 5, "family_code": "oriental", "name_uk": "Деревно-східні", "name_en": "Woody Oriental", "key_ingredients": ["пачулі", "сандал", "темний шоколад", "амброве дерево", "шафран"], "profile": "Густі, темні, пряно-деревні з оксамитовою базою", "color_hex": "#D97706"}, {"id": "woody_pure", "ring_index": 6, "family_code": "woody", "name_uk": "Деревні", "name_en": "Woods", "key_ingredients": ["кедр", "ветивер", "дерево уд", "сандалове дерево", "гуаяк"], "profile": "Шляхетна суха деревина, тирса, величний лісовий спокій", "color_hex": "#059669"}, {"id": "woody_mossy", "ring_index": 7, "family_code": "woody", "name_uk": "Мохові деревні (Шипрові)", "name_en": "Mossy Woods / Chypre", "key_ingredients": ["дубовий мох", "бергамот", "ладанник", "земляні ноти", "листи пачулі"], "profile": "Класичний шипровий контраст: вологий мох, лісова прохолода", "color_hex": "#10B981"}, {"id": "woody_dry", "ring_index": 8, "family_code": "woody", "name_uk": "Сухі деревні (Шкіряні)", "name_en": "Dry Woods / Leather", "key_ingredients": ["шкіра", "тютюн", "березовий дьоготь", "суха деревина", "дим"], "profile": "Димні, строгі, брутальні шкіряні та тютюнові відтінки", "color_hex": "#34D399"}, {"id": "fresh_citrus", "ring_index": 9, "family_code": "fresh", "name_uk": "Цитрусові", "name_en": "Citrus", "key_ingredients": ["лимон", "бергамот", "мандарин", "грейпфрут", "лайм", "вербена"], "profile": "Іскристі, яскраві, сонячні, соковиті та бадьорі", "color_hex": "#06B6D4"}, {"id": "fresh_aquatic", "ring_index": 10, "family_code": "fresh", "name_uk": "Водні (Акватичні)", "name_en": "Water / Aquatic", "key_ingredients": ["морська сіль", "калон", "водорості", "морський бриз", "латаття"], "profile": "Прозорі, прохолодні, озонові, наче подих океану", "color_hex": "#0EA5E9"}, {"id": "fresh_green", "ring_index": 11, "family_code": "fresh", "name_uk": "Зелені", "name_en": "Green", "key_ingredients": ["скошена трава", "гальбанум", "листя фіалки", "м'ята", "зелений чай"], "profile": "Хрусткі, природні, наче зім'яте в руках свіже листя", "color_hex": "#38BDF8"}, {"id": "fresh_fruity", "ring_index": 12, "family_code": "fresh", "name_uk": "Фруктові", "name_en": "Fruity", "key_ingredients": ["чорна смородина", "персик", "яблуко", "груша", "малина", "лічі"], "profile": "Солодкі, грайливі, десертні свіжі фрукти та ягоди", "color_hex": "#818CF8"}, {"id": "fresh_aromatic", "ring_index": 13, "family_code": "fresh", "name_uk": "Ароматичні (Фужерні)", "name_en": "Aromatic / Fougère", "key_ingredients": ["лаванда", "розмарин", "шавлія", "базилік", "чебрець"], "profile": "Трав'янисто-пряні, вишукані, сполучна ланка між свіжістю і лісом", "color_hex": "#A78BFA"}];
+    const EMBEDDED_FRAGRANCES = [{"id": "valid_rose_perfume", "brand_id": "lancôme", "brand_name": "Lancôme", "name": "Pure Rose Elixir", "gender": "unisex", "concentration": "EDP", "primary_subfamily_id": "floral_pure", "family_code": "floral", "top_notes": ["рожевий перець"], "heart_notes": ["троянда", "півонія"], "base_notes": ["мускус", "кедр"], "price_uah": null, "brocard_sku": null, "brocard_url": null, "image_url": null}, {"id": "lancome_la_vie_est_belle", "brand_id": "lancome", "brand_name": "Lancôme", "name": "La Vie Est Belle", "gender": "female", "concentration": "Eau de Parfum", "primary_subfamily_id": "oriental_pure", "family_code": "oriental", "top_notes": ["чорна смородина", "груша"], "heart_notes": ["ірис", "жасмин", "флердоранж"], "base_notes": ["праліне", "ваніль", "пачулі", "боби тонка"], "price_uah": 4850.0, "brocard_sku": "LAN-LVEB-50", "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-lancome-la-vie-est-belle", "image_url": "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=400&q=80"}, {"id": "lancome_idole", "brand_id": "lancome", "brand_name": "Lancôme", "name": "Idôle", "gender": "female", "concentration": "Eau de Parfum", "primary_subfamily_id": "floral_pure", "family_code": "floral", "top_notes": ["бергамот", "груша", "рожевий перець"], "heart_notes": ["троянда", "травнева троянда", "індійський жасмин"], "base_notes": ["білий мускус", "ваніль", "пачулі", "кедр"], "price_uah": 4420.0, "brocard_sku": "LAN-IDL-50", "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-lancome-idole", "image_url": "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=400&q=80"}, {"id": "lancome_tresor", "brand_id": "lancome", "brand_name": "Lancôme", "name": "Trésor", "gender": "female", "concentration": "Eau de Parfum", "primary_subfamily_id": "floral_pure", "family_code": "floral", "top_notes": ["персик", "абрикос", "бузок", "бергамот", "конвалія"], "heart_notes": ["троянда", "ірис", "геліотроп", "жасмин"], "base_notes": ["сандал", "мускус", "амбра", "ваніль"], "price_uah": 4990.0, "brocard_sku": "LAN-TRS-50", "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-lancome-tresor", "image_url": "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=400&q=80"}, {"id": "carolina_herrera_good_girl", "brand_id": "carolina_herrera", "brand_name": "Carolina Herrera", "name": "Good Girl", "gender": "female", "concentration": "Eau de Parfum", "primary_subfamily_id": "oriental_pure", "family_code": "oriental", "top_notes": ["мигдаль", "кава", "бергамот", "лимон"], "heart_notes": ["тубероза", "жасмин самбак", "флердоранж", "ірис"], "base_notes": ["боби тонка", "какао", "ваніль", "праліне", "сандал", "мускус", "амбра", "пачулі", "кедр"], "price_uah": 5200.0, "brocard_sku": "CH-GG-50", "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-carolina-herrera-good-girl", "image_url": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80"}, {"id": "carolina_herrera_very_good_girl", "brand_id": "carolina_herrera", "brand_name": "Carolina Herrera", "name": "Very Good Girl", "gender": "female", "concentration": "Eau de Parfum", "primary_subfamily_id": "floral_pure", "family_code": "floral", "top_notes": ["червона смородина", "лічі"], "heart_notes": ["троянда"], "base_notes": ["ваніль", "ветивер"], "price_uah": 5400.0, "brocard_sku": "CH-VGG-50", "brocard_url": "https://www.brocard.ua/ua/product/parfumovana-voda-carolina-herrera-very-good-girl", "image_url": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80"}, {"id": "carolina_herrera_bad_boy", "brand_id": "carolina_herrera", "brand_name": "Carolina Herrera", "name": "Bad Boy", "gender": "male", "concentration": "Eau de Toilette", "primary_subfamily_id": "oriental_woody", "family_code": "oriental", "top_notes": ["білий перець", "чорний перець", "бергамот"], "heart_notes": ["шавлія", "кедр"], "base_notes": ["боби тонка", "какао", "амброве дерево"], "price_uah": 4750.0, "brocard_sku": "CH-BB-100", "brocard_url": "https://www.brocard.ua/ua/product/tualetna-voda-carolina-herrera-bad-boy", "image_url": "https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=400&q=80"}, {"id": "chanel_coco_mademoiselle", "brand_id": "chanel", "brand_name": "Chanel", "name": "Coco Mademoiselle", "gender": "female", "concentration": "Eau de Parfum", "primary_subfamily_id": "oriental_pure", "family_code": "oriental", "top_notes": ["апельсин", "мандарин", "бергамот", "флердоранж"], "heart_notes": ["турецька троянда", "жасмин", "мімоза", "іланг-іланг"], "base_notes": ["пачулі", "білий мускус", "ваніль", "ветивер", "боби тонка", "опопонакс"], "price_uah": 6800.0, "brocard_sku": "CHL-CCM-50", "brocard_url": "https://www.brocard.ua/ua/product/chanel-coco-mademoiselle", "image_url": "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80"}, {"id": "chanel_bleu_de_chanel", "brand_id": "chanel", "brand_name": "Chanel", "name": "Bleu de Chanel", "gender": "male", "concentration": "Eau de Parfum", "primary_subfamily_id": "woody_pure", "family_code": "woody", "top_notes": ["грейпфрут", "лимон", "м'ята", "рожевий перець", "бергамот"], "heart_notes": ["імбир", "мускатний горіх", "жасмин"], "base_notes": ["ладан", "ветивер", "кедр", "сандал", "пачулі", "білий мускус"], "price_uah": 6400.0, "brocard_sku": "CHL-BDC-50", "brocard_url": "https://www.brocard.ua/ua/product/chanel-bleu-de-chanel", "image_url": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80"}, {"id": "tom_ford_tobacco_vanille", "brand_id": "tom_ford", "brand_name": "Tom Ford", "name": "Tobacco Vanille", "gender": "unisex", "concentration": "Eau de Parfum", "primary_subfamily_id": "oriental_pure", "family_code": "oriental", "top_notes": ["тютюн", "прянощі"], "heart_notes": ["боби тонка", "ваніль", "какао"], "base_notes": ["суха деревина", "смоли"], "price_uah": 11500.0, "brocard_sku": "TF-TBV-50", "brocard_url": "https://www.brocard.ua/ua/product/tom-ford-tobacco-vanille", "image_url": "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=400&q=80"}, {"id": "tom_ford_oud_wood", "brand_id": "tom_ford", "brand_name": "Tom Ford", "name": "Oud Wood", "gender": "unisex", "concentration": "Eau de Parfum", "primary_subfamily_id": "woody_pure", "family_code": "woody", "top_notes": ["кардамон", "рожевий перець"], "heart_notes": ["уд", "дерево уд", "сандал", "ветивер"], "base_notes": ["боби тонка", "ваніль", "амбра"], "price_uah": 11900.0, "brocard_sku": "TF-OW-50", "brocard_url": "https://www.brocard.ua/ua/product/tom-ford-oud-wood", "image_url": "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=400&q=80"}, {"id": "tom_ford_lost_cherry", "brand_id": "tom_ford", "brand_name": "Tom Ford", "name": "Lost Cherry", "gender": "unisex", "concentration": "Eau de Parfum", "primary_subfamily_id": "floral_pure", "family_code": "floral", "top_notes": ["вишня", "черешня", "гіркий мигдаль"], "heart_notes": ["троянда", "жасмин самбак"], "base_notes": ["боби тонка", "перуанський бальзам", "сандал", "ветивер", "кедр", "пачулі", "ваніль"], "price_uah": 13800.0, "brocard_sku": "TF-LC-50", "brocard_url": "https://www.brocard.ua/ua/product/tom-ford-lost-cherry", "image_url": "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=400&q=80"}, {"id": "ysl_black_opium", "brand_id": "ysl", "brand_name": "Yves Saint Laurent", "name": "Black Opium", "gender": "female", "concentration": "Eau de Parfum", "primary_subfamily_id": "oriental_pure", "family_code": "oriental", "top_notes": ["груша", "рожевий перець", "флердоранж"], "heart_notes": ["кава", "жасмин", "гіркий мигдаль"], "base_notes": ["ваніль", "пачулі", "кедр", "кашемірове дерево"], "price_uah": 4980.0, "brocard_sku": "YSL-BO-50", "brocard_url": "https://www.brocard.ua/ua/product/yves-saint-laurent-black-opium", "image_url": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80"}, {"id": "ysl_libre", "brand_id": "ysl", "brand_name": "Yves Saint Laurent", "name": "Libre", "gender": "female", "concentration": "Eau de Parfum", "primary_subfamily_id": "fresh_aromatic", "family_code": "fresh", "top_notes": ["лаванда", "мандарин", "чорна смородина", "петитгрейн"], "heart_notes": ["лаванда", "флердоранж", "жасмин"], "base_notes": ["ваніль", "мускус", "кедр", "сіра амбра"], "price_uah": 5150.0, "brocard_sku": "YSL-LIB-50", "brocard_url": "https://www.brocard.ua/ua/product/yves-saint-laurent-libre", "image_url": "https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=400&q=80"}, {"id": "dior_sauvage", "brand_id": "dior", "brand_name": "Dior", "name": "Sauvage", "gender": "male", "concentration": "Eau de Toilette", "primary_subfamily_id": "fresh_aromatic", "family_code": "fresh", "top_notes": ["калабрійський бергамот", "перець"], "heart_notes": ["лаванда", "сичуанський перець", "ветивер", "пачулі", "герань"], "base_notes": ["амброксан", "кедр", "лабданум"], "price_uah": 5600.0, "brocard_sku": "DIOR-SVG-60", "brocard_url": "https://www.brocard.ua/ua/product/dior-sauvage", "image_url": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=400&q=80"}, {"id": "dior_fahrenheit", "brand_id": "dior", "brand_name": "Dior", "name": "Fahrenheit", "gender": "male", "concentration": "Eau de Toilette", "primary_subfamily_id": "woody_pure", "family_code": "woody", "top_notes": ["лаванда", "мандарин", "глід", "кедр", "бергамот", "ромашка", "лимон"], "heart_notes": ["мускатний горіх", "жимолость", "гвоздика", "сандал", "листя фіалки", "жасмин", "конвалія", "кедр"], "base_notes": ["шкіра", "боби тонка", "амбра", "пачулі", "мускус", "ветивер"], "price_uah": 5300.0, "brocard_sku": "DIOR-FHR-50", "brocard_url": "https://www.brocard.ua/ua/product/dior-fahrenheit", "image_url": "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=400&q=80"}, {"id": "armani_acqua_di_gio", "brand_id": "giorgio_armani", "brand_name": "Giorgio Armani", "name": "Acqua Di Giò", "gender": "male", "concentration": "Eau de Toilette", "primary_subfamily_id": "fresh_aquatic", "family_code": "fresh", "top_notes": ["лайм", "лимон", "бергамот", "жасмин", "апельсин", "мандарин", "неролі"], "heart_notes": ["морські ноти", "жасмин", "калон", "персик", "фрезія", "гіацинт", "розмарин"], "base_notes": ["білий мускус", "кедр", "дубовий мох", "пачулі", "амбра"], "price_uah": 4600.0, "brocard_sku": "GA-ADG-50", "brocard_url": "https://www.brocard.ua/ua/product/giorgio-armani-acqua-di-gio", "image_url": "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=400&q=80"}, {"id": "mfk_baccarat_rouge_540", "brand_id": "mfk", "brand_name": "Maison Francis Kurkdjian", "name": "Baccarat Rouge 540", "gender": "unisex", "concentration": "Eau de Parfum", "primary_subfamily_id": "floral_pure", "family_code": "floral", "top_notes": ["шафран", "жасмин"], "heart_notes": ["амброве дерево", "сіра амбра"], "base_notes": ["ялинова смола", "кедр"], "price_uah": 12900.0, "brocard_sku": "MFK-BR540-70", "brocard_url": "https://www.brocard.ua/ua/product/maison-francis-kurkdjian-baccarat-rouge-540", "image_url": "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=400&q=80"}, {"id": "kilian_angels_share", "brand_id": "kilian", "brand_name": "Kilian", "name": "Angels' Share", "gender": "unisex", "concentration": "Eau de Parfum", "primary_subfamily_id": "oriental_pure", "family_code": "oriental", "top_notes": ["коньяк"], "heart_notes": ["кориця", "боби тонка", "дуб"], "base_notes": ["праліне", "ваніль", "сандал"], "price_uah": 10500.0, "brocard_sku": "KIL-ASH-50", "brocard_url": "https://www.brocard.ua/ua/product/kilian-angels-share", "image_url": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=400&q=80"}];
+
+    let subfamilies = EMBEDDED_SUBFAMILIES;
+    let families = EMBEDDED_FAMILIES;
+    let allFragrances = EMBEDDED_FRAGRANCES;
+    let isServerMode = false;
+    let currentSelectedId = 'floral_pure';
+    let currentRecommendations = { exact: [], adjacent: [], complementary: [] };
+
+    const SUBFAMILIES_BY_ID = {};
+    subfamilies.forEach(sf => { SUBFAMILIES_BY_ID[sf.id] = sf; });
+
+    function calculateRingDistance(idxA, idxB) {
+      const diff = Math.abs(idxA - idxB);
+      return Math.min(diff, 14 - diff);
+    }
+
+    function classifyRelationship(distance) {
+      if (distance === 0) return 'exact';
+      if (distance <= 3) return 'adjacent';
+      if (distance >= 5) return 'complementary';
+      return 'moderate';
+    }
+
+    function clientSideMatching(sourceSubfamilyId, referenceFragranceId) {
+      let sourceNotes = [];
+      if (referenceFragranceId) {
+        const ref = allFragrances.find(f => f.id === referenceFragranceId);
+        if (ref) {
+          sourceSubfamilyId = ref.primary_subfamily_id;
+          sourceNotes = [...(ref.top_notes || []), ...(ref.heart_notes || []), ...(ref.base_notes || [])];
+        }
+      }
+
+      const srcSf = SUBFAMILIES_BY_ID[sourceSubfamilyId];
+      if (!srcSf) return { exact: [], adjacent: [], complementary: [] };
+
+      const buckets = { exact: [], adjacent: [], complementary: [] };
+
+      allFragrances.forEach(f => {
+        if (referenceFragranceId && f.id === referenceFragranceId) return;
+        const tgtSf = SUBFAMILIES_BY_ID[f.primary_subfamily_id];
+        if (!tgtSf) return;
+
+        const dist = calculateRingDistance(srcSf.ring_index, tgtSf.ring_index);
+        const rel = classifyRelationship(dist);
+
+        const targetNotes = [...(f.top_notes || []), ...(f.heart_notes || []), ...(f.base_notes || [])];
+        let noteSim = 0;
+        if (sourceNotes.length && targetNotes.length) {
+          const sA = new Set(sourceNotes.map(n => n.toLowerCase()));
+          const sB = new Set(targetNotes.map(n => n.toLowerCase()));
+          let inter = 0;
+          sA.forEach(n => { if (sB.has(n)) inter++; });
+          noteSim = inter / Math.max(1, (sA.size + sB.size - inter));
+        }
+
+        let score = 0.5;
+        if (rel === 'exact') {
+          score = 0.65 + (0.35 * noteSim);
+        } else if (rel === 'adjacent') {
+          const bonus = (dist === 1) ? 0.20 : (dist === 2 ? 0.12 : 0.05);
+          score = 0.55 + bonus + (0.25 * noteSim);
+        } else if (rel === 'complementary') {
+          const contrast = (dist === 7) ? 1.0 : 0.88;
+          score = 0.50 + (0.30 * contrast) + (0.20 * (1 - noteSim));
+        }
+
+        const item = {
+          fragrance: f,
+          relation: rel,
+          ring_distance: dist,
+          score: Math.round(score * 10000) / 10000,
+          target_subfamily: tgtSf
+        };
+
+        if (buckets[rel]) {
+          buckets[rel].push(item);
+        }
+      });
+
+      for (const k in buckets) {
+        buckets[k].sort((a, b) => b.score - a.score);
+        buckets[k] = buckets[k].slice(0, 8);
+      }
+
+      return buckets;
+    }
+    let subfamilies = [];
+    let families = {};
+    let allFragrances = [];
+    let currentSelectedId = 'floral_pure';
+    let currentRecommendations = { exact: [], adjacent: [], complementary: [] };
+
+    // Завантаження структури колеса та каталогу
+    async function initApp() {
+      try {
+        const testRes = await fetch('/api/wheel');
+        if (testRes.ok) {
+          isServerMode = true;
+          const [wheelData, fragData] = await Promise.all([
+            testRes.json(),
+            fetch('/api/fragrances').then(r => r.json())
+          ]);
+          subfamilies = wheelData.subfamilies;
+          families = wheelData.families;
+          allFragrances = fragData.fragrances || [];
+        } else {
+          throw new Error('API unavailable');
+        }
+      } catch (err) {
+        isServerMode = false;
+        subfamilies = EMBEDDED_SUBFAMILIES;
+        families = EMBEDDED_FAMILIES;
+        allFragrances = EMBEDDED_FRAGRANCES;
+      }
+
+      document.getElementById('catalogCount').innerText = allFragrances.length;
+      populatePerfumeSelect();
+      renderSvgWheel();
+      selectSubfamily('floral_pure');
+    }
+
+    // Заповнення селектора парфумів
+    function populatePerfumeSelect() {
+      const select = document.getElementById('perfumeSelect');
+      allFragrances.forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f.id;
+        opt.textContent = `${f.brand_name} — ${f.name} (${f.concentration || 'EDP'})`;
+        select.appendChild(opt);
+      });
+
+      select.addEventListener('change', (e) => {
+        const id = e.target.value;
+        if (!id) return;
+        const frag = allFragrances.find(item => item.id === id);
+        if (frag && frag.primary_subfamily_id) {
+          selectSubfamily(frag.primary_subfamily_id, id);
+        }
+      });
+    }
+
+    // Малювання SVG Колеса (14 секторів)
+    function renderSvgWheel() {
+      const svg = document.getElementById('wheelSvg');
+      svg.innerHTML = '';
+
+      const n = subfamilies.length;
+      const angleStep = (2 * Math.PI) / n;
+      const outerR = 190;
+      const innerR = 85;
+
+      subfamilies.forEach((sf, i) => {
+        const startAngle = i * angleStep - Math.PI / 2;
+        const endAngle = (i + 1) * angleStep - Math.PI / 2;
+
+        const x1 = outerR * Math.cos(startAngle);
+        const y1 = outerR * Math.sin(startAngle);
+        const x2 = outerR * Math.cos(endAngle);
+        const y2 = outerR * Math.sin(endAngle);
+
+        const x3 = innerR * Math.cos(endAngle);
+        const y3 = innerR * Math.sin(endAngle);
+        const x4 = innerR * Math.cos(startAngle);
+        const y4 = innerR * Math.sin(startAngle);
+
+        const d = `
+          M ${x1} ${y1}
+          A ${outerR} ${outerR} 0 0 1 ${x2} ${y2}
+          L ${x3} ${y3}
+          A ${innerR} ${innerR} 0 0 0 ${x4} ${y4}
+          Z
+        `;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('fill', sf.color_hex);
+        path.setAttribute('class', 'sector-slice');
+        path.setAttribute('id', `sector_${sf.id}`);
+        path.dataset.subfamilyId = sf.id;
+
+        // Події миші
+        path.addEventListener('mouseenter', () => updateCenterInfo(sf));
+        path.addEventListener('mouseleave', () => {
+          const activeSf = subfamilies.find(s => s.id === currentSelectedId);
+          if (activeSf) updateCenterInfo(activeSf);
+        });
+        path.addEventListener('click', () => {
+          document.getElementById('perfumeSelect').value = '';
+          selectSubfamily(sf.id);
+        });
+
+        svg.appendChild(path);
+      });
+    }
+
+    // Оновлення тексту в центрі колеса
+    function updateCenterInfo(sf) {
+      const fam = families[sf.family_code] || {};
+      document.getElementById('centerFamily').innerText = fam.name_uk || sf.family_code;
+      document.getElementById('centerName').innerText = sf.name_uk;
+      document.getElementById('centerNotes').innerText = (sf.key_ingredients || []).slice(0, 4).join(', ');
+    }
+
+    // Вибір підгрупи та оновлення підсвітки секторів
+    async function selectSubfamily(subfamilyId, referenceFragranceId = null) {
+      currentSelectedId = subfamilyId;
+      const activeSf = subfamilies.find(s => s.id === subfamilyId);
+      if (!activeSf) return;
+
+      updateCenterInfo(activeSf);
+
+      // Підсвітка секторів
+      const n = subfamilies.length;
+      const currentIdx = activeSf.ring_index;
+
+      subfamilies.forEach(sf => {
+        const elem = document.getElementById(`sector_${sf.id}`);
+        if (!elem) return;
+
+        elem.className.baseVal = 'sector-slice';
+
+        const diff = Math.abs(currentIdx - sf.ring_index);
+        const dist = Math.min(diff, n - diff);
+
+        if (dist === 0) {
+          elem.classList.add('active');
+        } else if (dist <= 2) {
+          elem.classList.add('adjacent');
+        } else if (dist >= 6) {
+          elem.classList.add('complementary');
+        } else {
+          elem.classList.add('dimmed');
+        }
+      });
+
+      // Запит до бекенду на підбір
+      await fetchRecommendations(subfamilyId, referenceFragranceId);
+    }
+
+    // Запит рекомендацій
+    async function fetchRecommendations(subfamilyId, referenceId) {
+      if (isServerMode) {
+        try {
+          const body = {
+            subfamily_id: subfamilyId,
+            reference_fragrance_id: referenceId
+          };
+          const res = await fetch('/api/match', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const data = await res.json();
+          currentRecommendations = data.recommendations || { exact: [], adjacent: [], complementary: [] };
+        } catch (err) {
+          currentRecommendations = clientSideMatching(subfamilyId, referenceId);
+        }
+      } else {
+        currentRecommendations = clientSideMatching(subfamilyId, referenceId);
+      }
+      renderRecommendations();
+    }
+
+    // Відображення карток рекомендацій
+    function renderRecommendations() {
+      const exact = currentRecommendations.exact || [];
+      const adjacent = currentRecommendations.adjacent || [];
+      const comp = currentRecommendations.complementary || [];
+
+      document.getElementById('badgeExact').innerText = exact.length;
+      document.getElementById('badgeAdjacent').innerText = adjacent.length;
+      document.getElementById('badgeComplementary').innerText = comp.length;
+      document.getElementById('badgeAll').innerText = exact.length + adjacent.length + comp.length;
+
+      renderGrid('gridExact', exact, 'Точних збігів у цій підгрупі поки немає');
+      renderGrid('gridAdjacent', adjacent, 'Суміжних альтернатив не знайдено');
+      renderGrid('gridComplementary', comp, 'Контрастних парфумів не знайдено');
+    }
+
+    function renderGrid(gridId, list, emptyText) {
+      const container = document.getElementById(gridId);
+      container.innerHTML = '';
+
+      if (list.length === 0) {
+        container.innerHTML = `<div class="empty-state">${emptyText}</div>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const f = item.fragrance;
+        const scorePercent = Math.round(item.score * 100);
+        const sfColor = item.target_subfamily?.color_hex || '#e879f9';
+
+        const topNotes = (f.top_notes || []).slice(0, 3).join(', ') || '—';
+        const heartNotes = (f.heart_notes || []).slice(0, 3).join(', ') || '—';
+        const baseNotes = (f.base_notes || []).slice(0, 3).join(', ') || '—';
+
+        const card = document.createElement('div');
+        card.className = 'fragrance-card';
+        card.innerHTML = `
+          <div>
+            <div class="card-top">
+              <span class="card-brand">${f.brand_name}</span>
+              <span class="card-score" style="color: ${sfColor}; border: 1px solid ${sfColor}40;">${scorePercent}% збіг</span>
+            </div>
+            <h4 class="card-name">${f.name}</h4>
+            <div class="card-concentration">${f.concentration || 'Eau de Parfum'} • ${item.target_subfamily?.name_uk || ''}</div>
+            
+            <div class="pyramid-box">
+              <div class="pyramid-line">
+                <span class="pyramid-label">Верх:</span>
+                <span class="pyramid-values" title="${topNotes}">${topNotes}</span>
+              </div>
+              <div class="pyramid-line">
+                <span class="pyramid-label">Серце:</span>
+                <span class="pyramid-values" title="${heartNotes}">${heartNotes}</span>
+              </div>
+              <div class="pyramid-line">
+                <span class="pyramid-label">База:</span>
+                <span class="pyramid-values" title="${baseNotes}">${baseNotes}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-bottom">
+            <span class="card-price">${f.price_uah ? f.price_uah.toLocaleString('uk-UA') + ' ₴' : 'В каталозі'}</span>
+            <a href="${f.brocard_url || '#'}" target="_blank" rel="noopener" class="card-link">Brocard.ua ↗</a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Перемикання вкладок
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const tab = btn.dataset.tab;
+        const secExact = document.getElementById('sectionExact');
+        const secAdj = document.getElementById('sectionAdjacent');
+        const secComp = document.getElementById('sectionComplementary');
+
+        if (tab === 'all') {
+          secExact.style.display = 'flex';
+          secAdj.style.display = 'flex';
+          secComp.style.display = 'flex';
+        } else if (tab === 'exact') {
+          secExact.style.display = 'flex';
+          secAdj.style.display = 'none';
+          secComp.style.display = 'none';
+        } else if (tab === 'adjacent') {
+          secExact.style.display = 'none';
+          secAdj.style.display = 'flex';
+          secComp.style.display = 'none';
+        } else if (tab === 'complementary') {
+          secExact.style.display = 'none';
+          secAdj.style.display = 'none';
+          secComp.style.display = 'flex';
+        }
+      });
+    });
+
+    // Старт
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
