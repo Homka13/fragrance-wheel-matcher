@@ -14,12 +14,25 @@ from typing import Dict, List, Tuple
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
-from .schemas import RawFragranceInput, ValidatedFragrance
-from ..core.pyramid_classifier import classify_pyramid
-from ..core.wheel_topology import SUBFAMILIES_BY_ID
-from ..db.database import get_db, init_db
-from ..db.models import BrandModel, FragranceModel, RecommendationCacheModel
-from ..core.wheel_topology import calculate_ring_distance, classify_relationship
+try:
+    from pipeline.schemas import RawFragranceInput, ValidatedFragrance
+    from core.pyramid_classifier import classify_pyramid
+    from core.wheel_topology import SUBFAMILIES_BY_ID, calculate_ring_distance, classify_relationship
+    from db.database import get_db, init_db
+    from db.models import BrandModel, FragranceModel, RecommendationCacheModel
+except ImportError:
+    try:
+        from .schemas import RawFragranceInput, ValidatedFragrance
+        from ..core.pyramid_classifier import classify_pyramid
+        from ..core.wheel_topology import SUBFAMILIES_BY_ID, calculate_ring_distance, classify_relationship
+        from ..db.database import get_db, init_db
+        from ..db.models import BrandModel, FragranceModel, RecommendationCacheModel
+    except ImportError:
+        from fragrance_matcher.pipeline.schemas import RawFragranceInput, ValidatedFragrance
+        from fragrance_matcher.core.pyramid_classifier import classify_pyramid
+        from fragrance_matcher.core.wheel_topology import SUBFAMILIES_BY_ID, calculate_ring_distance, classify_relationship
+        from fragrance_matcher.db.database import get_db, init_db
+        from fragrance_matcher.db.models import BrandModel, FragranceModel, RecommendationCacheModel
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("ingest_pipeline")

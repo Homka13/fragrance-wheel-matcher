@@ -13,11 +13,25 @@ from starlette.responses import JSONResponse, HTMLResponse, FileResponse
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
 
-from ..core.wheel_topology import FAMILIES, SUBFAMILIES, SUBFAMILIES_BY_ID
-from ..core.matcher import find_recommendations
-from ..db.database import get_db, init_db
-from ..db.models import FragranceModel, BrandModel
-from ..pipeline.ingest import ingest_from_file
+try:
+    from core.wheel_topology import FAMILIES, SUBFAMILIES, SUBFAMILIES_BY_ID
+    from core.matcher import find_recommendations
+    from db.database import get_db, init_db
+    from db.models import FragranceModel, BrandModel
+    from pipeline.ingest import ingest_from_file
+except ImportError:
+    try:
+        from ..core.wheel_topology import FAMILIES, SUBFAMILIES, SUBFAMILIES_BY_ID
+        from ..core.matcher import find_recommendations
+        from ..db.database import get_db, init_db
+        from ..db.models import FragranceModel, BrandModel
+        from ..pipeline.ingest import ingest_from_file
+    except ImportError:
+        from fragrance_matcher.core.wheel_topology import FAMILIES, SUBFAMILIES, SUBFAMILIES_BY_ID
+        from fragrance_matcher.core.matcher import find_recommendations
+        from fragrance_matcher.db.database import get_db, init_db
+        from fragrance_matcher.db.models import FragranceModel, BrandModel
+        from fragrance_matcher.pipeline.ingest import ingest_from_file
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 SEED_FILE = Path(__file__).resolve().parent.parent / "data" / "seed_catalog.json"

@@ -10,8 +10,18 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from .models import Base, WheelFamilyModel, WheelSubfamilyModel, BrandModel
-from ..core.wheel_topology import FAMILIES, SUBFAMILIES
+try:
+    from db.models import Base, WheelFamilyModel, WheelSubfamilyModel, BrandModel
+except ImportError:
+    from .models import Base, WheelFamilyModel, WheelSubfamilyModel, BrandModel
+
+try:
+    from core.wheel_topology import FAMILIES, SUBFAMILIES
+except ImportError:
+    try:
+        from ..core.wheel_topology import FAMILIES, SUBFAMILIES
+    except ImportError:
+        from fragrance_matcher.core.wheel_topology import FAMILIES, SUBFAMILIES
 
 # Шлях до бази за замовчуванням (локальний файл поруч із проектом)
 DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "fragrances.db"
