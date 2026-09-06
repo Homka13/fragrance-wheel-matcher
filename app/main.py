@@ -23,6 +23,24 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 SEED_FILE = Path(__file__).resolve().parent.parent / "data" / "seed_catalog.json"
 
 
+def ensure_db_ready():
+    """Забезпечує готовність БД та завантаження каталогу навіть у Serverless (Vercel/Lambda)."""
+    try:
+        init_db()
+        with get_db() as session:
+            count = session.query(FragranceModel).count()
+            if count == 0 and SEED_FILE.exists():
+                ingest_from_file(str(SEED_FILE))
+    except Exception as e:
+        print(f"Warning in ensure_db_ready: {e}")
+
+
+try:
+    ensure_db_ready()
+except Exception:
+    pass
+
+
 async def get_wheel_data(request):
     """Повертає структуру сімейств та 14 підгруп Колеса Едвардса."""
     return JSONResponse({
@@ -32,10 +50,25 @@ async def get_wheel_data(request):
 
 
 async def get_all_fragrances(request):
-    """Повертає каталог парфумів із бази даних."""
-    with get_db() as session:
-        frags = session.query(FragranceModel).all()
-        data = [f.to_dict() for f in frags]
+    """Повертає каталог парфумів із бази даних або fallback з файлу seed_catalog.json."""
+    data = []
+    try:
+        ensure_db_ready()
+        with get_db() as session:
+            frags = session.query(FragranceModel).all()
+            data = [f.to_dict() for f in frags]
+    except Exception as e:
+        print(f"DB query error: {e}")
+
+    # Fallback, якщо в serverless базі порожньо
+    if not data and SEED_FILE.exists():
+        try:
+            with open(SEED_FILE, "r", encoding="utf-8") as f:
+                seed = json.load(f)
+                data = seed.get("products", [])
+        except Exception as e:
+            print(f"Fallback read error: {e}")
+
     return JSONResponse({"fragrances": data, "count": len(data)})
 
 
@@ -58,16 +91,32 @@ async def match_fragrances(request):
     preferred_notes = body.get("preferred_notes", [])
     disliked_notes = body.get("disliked_notes", [])
 
-    with get_db() as session:
-        frags = session.query(FragranceModel).all()
-        all_frags = [f.to_dict() for f in frags]
-
-    # Якщо база порожня, автоматично завантажуємо стартовий каталог
-    if not all_frags and SEED_FILE.exists():
-        ingest_from_file(str(SEED_FILE))
+    all_frags = []
+    try:
+        ensure_db_ready()
         with get_db() as session:
             frags = session.query(FragranceModel).all()
             all_frags = [f.to_dict() for f in frags]
+    except Exception as e:
+        print(f"DB match error: {e}")
+
+    # Якщо база порожня, автоматично завантажуємо стартовий каталог
+    if not all_frags and SEED_FILE.exists():
+        try:
+            ingest_from_file(str(SEED_FILE))
+            with get_db() as session:
+                frags = session.query(FragranceModel).all()
+                all_frags = [f.to_dict() for f in frags]
+        except Exception:
+            pass
+
+        if not all_frags:
+            try:
+                with open(SEED_FILE, "r", encoding="utf-8") as f:
+                    seed = json.load(f)
+                    all_frags = seed.get("products", [])
+            except Exception:
+                pass
 
     if not subfamily_id and not reference_id:
         # За замовчуванням беремо першу квіткову групу

@@ -118,27 +118,157 @@
       text-align: center;
     }
 
-    .selector-box {
+    /* Контейнер пошуку та вибору парфуму */
+    .search-box-container {
       width: 100%;
       margin-bottom: 1.5rem;
+      position: relative;
     }
-    .selector-box label {
-      display: block;
+    .search-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 0.8px;
       color: var(--text-muted);
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.45rem;
+    }
+    .search-label-hint {
+      font-size: 0.7rem;
+      text-transform: none;
+      letter-spacing: normal;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .search-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      transition: all 0.25s ease;
+    }
+    .search-input-wrapper:focus-within {
+      border-color: #e879f9;
+      box-shadow: 0 0 15px rgba(232, 121, 249, 0.25);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .search-icon {
+      padding-left: 0.9rem;
+      font-size: 0.95rem;
+      opacity: 0.7;
+      pointer-events: none;
+      user-select: none;
+    }
+    .perfume-search-input {
+      width: 100%;
+      padding: 0.75rem 0.75rem 0.75rem 0.6rem;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+    }
+    .perfume-search-input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 0.82rem;
+    }
+    .clear-search-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0 0.8rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s ease;
+    }
+    .clear-search-btn:hover {
+      color: #fff;
+    }
+
+    /* Випадаюче меню автокомпліту */
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #111726;
+      border: 1px solid #2d3748;
+      border-radius: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+      z-index: 100;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(12px);
+      margin-top: 0.3rem;
+    }
+    .autocomplete-item {
+      padding: 0.65rem 0.9rem;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .autocomplete-item:last-child {
+      border-bottom: none;
+    }
+    .autocomplete-item:hover, .autocomplete-item.selected {
+      background: rgba(232, 121, 249, 0.18);
+    }
+    .autocomplete-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .autocomplete-item-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .autocomplete-item-brand {
+      color: #94a3b8;
+      font-size: 0.78rem;
+      margin-left: 0.3rem;
+    }
+    .autocomplete-badge {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .autocomplete-notes {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .autocomplete-empty {
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .select-fallback-wrapper {
+      margin-top: 0.5rem;
     }
     .custom-select {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 0.85rem;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
+      border-radius: 8px;
       color: var(--text-main);
       font-family: inherit;
-      font-size: 0.9rem;
+      font-size: 0.82rem;
       outline: none;
       transition: all 0.2s ease;
       cursor: pointer;
@@ -471,12 +601,33 @@
       <h2 class="panel-title">Колесо Ароматів</h2>
       <p class="panel-hint">Клікніть на сектор для підбору або оберіть парфум-референс</p>
 
-      <!-- Селектор референсного парфуму -->
-      <div class="perfume-selector-box">
-        <div class="perfume-selector-inner">
-          <label for="perfumeSelect">Швидкий підбір за ароматом:</label>
-          <select id="perfumeSelect">
-            <option value="">-- Оберіть парфум для пошуку аналогів та контрастів --</option>
+      <!-- Поле вводу та пошуку парфуму-референсу -->
+      <div class="search-box-container" id="searchBoxContainer">
+        <label for="perfumeInput" class="search-label">
+          <span>Швидкий підбір за ароматом:</span>
+          <span class="search-label-hint">введіть назву або оберіть</span>
+        </label>
+        
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            id="perfumeInput" 
+            class="perfume-search-input" 
+            placeholder="Введіть назву парфуму або бренд (напр. Good Girl, Sauvage, Lost Cherry)..." 
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="clearSearchBtn" class="clear-search-btn" title="Очистити пошук" type="button" style="display: none;">✕</button>
+        </div>
+
+        <!-- Випадаючий список автодоповнення при вводі -->
+        <div id="autocompleteList" class="autocomplete-list" style="display: none;"></div>
+
+        <!-- Швидкий вибір зі спадного списку -->
+        <div class="select-fallback-wrapper">
+          <select id="perfumeSelect" class="custom-select">
+            <option value="">-- Або оберіть зі списку парфумів --</option>
           </select>
         </div>
       </div>
@@ -660,9 +811,9 @@
             testRes.json(),
             fetch('/api/fragrances').then(r => r.json())
           ]);
-          subfamilies = wheelData.subfamilies;
-          families = wheelData.families;
-          allFragrances = fragData.fragrances || [];
+          subfamilies = (wheelData.subfamilies && wheelData.subfamilies.length) ? wheelData.subfamilies : EMBEDDED_SUBFAMILIES;
+          families = (wheelData.families && Object.keys(wheelData.families).length) ? wheelData.families : EMBEDDED_FAMILIES;
+          allFragrances = (fragData && fragData.fragrances && fragData.fragrances.length) ? fragData.fragrances : EMBEDDED_FRAGRANCES;
         } else {
           throw new Error('API unavailable');
         }
@@ -673,15 +824,29 @@
         allFragrances = EMBEDDED_FRAGRANCES;
       }
 
+      // Додатковий захист від порожніх даних (наприклад, у Vercel Serverless)
+      if (!allFragrances || allFragrances.length === 0) {
+        allFragrances = EMBEDDED_FRAGRANCES;
+      }
+      if (!subfamilies || subfamilies.length === 0) {
+        subfamilies = EMBEDDED_SUBFAMILIES;
+      }
+      if (!families || Object.keys(families).length === 0) {
+        families = EMBEDDED_FAMILIES;
+      }
+
       document.getElementById('catalogCount').innerText = allFragrances.length;
       populatePerfumeSelect();
+      initSearchInput();
       renderSvgWheel();
       selectSubfamily('floral_pure');
     }
 
-    // Заповнення селектора парфумів
+    // Заповнення спадного списку парфумів
     function populatePerfumeSelect() {
       const select = document.getElementById('perfumeSelect');
+      if (!select) return;
+      select.innerHTML = '<option value="">-- Або оберіть зі списку 18 бестселерів --</option>';
       allFragrances.forEach(f => {
         const opt = document.createElement('option');
         opt.value = f.id;
@@ -691,12 +856,183 @@
 
       select.addEventListener('change', (e) => {
         const id = e.target.value;
-        if (!id) return;
+        const input = document.getElementById('perfumeInput');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        const list = document.getElementById('autocompleteList');
+
+        if (!id) {
+          if (input) input.value = '';
+          if (clearBtn) clearBtn.style.display = 'none';
+          if (list) list.style.display = 'none';
+          selectSubfamily('floral_pure');
+          return;
+        }
+
         const frag = allFragrances.find(item => item.id === id);
-        if (frag && frag.primary_subfamily_id) {
-          selectSubfamily(frag.primary_subfamily_id, id);
+        if (frag) {
+          if (input) input.value = `${frag.brand_name} — ${frag.name}`;
+          if (clearBtn) clearBtn.style.display = 'block';
+          if (list) list.style.display = 'none';
+          if (frag.primary_subfamily_id) {
+            selectSubfamily(frag.primary_subfamily_id, id);
+          }
         }
       });
+    }
+
+    // Поле вводу з живим пошуком та автодоповненням
+    function initSearchInput() {
+      const input = document.getElementById('perfumeInput');
+      const list = document.getElementById('autocompleteList');
+      const clearBtn = document.getElementById('clearSearchBtn');
+      const select = document.getElementById('perfumeSelect');
+      if (!input || !list || !clearBtn) return;
+
+      let activeIndex = -1;
+
+      function renderSuggestions(filtered) {
+        list.innerHTML = '';
+        activeIndex = -1;
+
+        if (!filtered || filtered.length === 0) {
+          list.innerHTML = '<div class="autocomplete-empty">Парфумів за цим запитом не знайдено</div>';
+          list.style.display = 'block';
+          return;
+        }
+
+        filtered.slice(0, 10).forEach((frag, idx) => {
+          const sf = SUBFAMILIES_BY_ID[frag.primary_subfamily_id] || {};
+          const fam = families[frag.family_code] || {};
+          const sfColor = sf.color_hex || '#e879f9';
+
+          const topNotes = (frag.top_notes || []).slice(0, 2).join(', ');
+          const heartNotes = (frag.heart_notes || []).slice(0, 2).join(', ');
+          const notesPreview = [topNotes, heartNotes].filter(Boolean).join(' • ');
+
+          const item = document.createElement('div');
+          item.className = 'autocomplete-item';
+          item.dataset.index = idx;
+          item.innerHTML = `
+            <div class="autocomplete-item-header">
+              <div>
+                <span class="autocomplete-item-name">${escapeHtml(frag.name)}</span>
+                <span class="autocomplete-item-brand">${escapeHtml(frag.brand_name)}</span>
+              </div>
+              <span class="autocomplete-badge" style="background: ${sfColor}25; color: ${sfColor}; border: 1px solid ${sfColor}60;">
+                ${escapeHtml(sf.name_uk || fam.name_uk || '')}
+              </span>
+            </div>
+            <div class="autocomplete-notes">
+              <span style="opacity: 0.6;">Ноти:</span> ${escapeHtml(notesPreview || 'базові акорди')}
+            </div>
+          `;
+
+          item.addEventListener('click', () => {
+            chooseFragrance(frag);
+          });
+
+          list.appendChild(item);
+        });
+
+        list.style.display = 'block';
+      }
+
+      function chooseFragrance(frag) {
+        input.value = `${frag.brand_name} — ${frag.name}`;
+        clearBtn.style.display = 'block';
+        list.style.display = 'none';
+        if (select) select.value = frag.id;
+        if (frag.primary_subfamily_id) {
+          selectSubfamily(frag.primary_subfamily_id, frag.id);
+        }
+      }
+
+      function filterFragrances(query) {
+        const q = (query || '').trim().toLowerCase();
+        if (!q) {
+          return allFragrances;
+        }
+        return allFragrances.filter(f => {
+          const nameMatch = (f.name || '').toLowerCase().includes(q);
+          const brandMatch = (f.brand_name || '').toLowerCase().includes(q);
+          const notes = [...(f.top_notes || []), ...(f.heart_notes || []), ...(f.base_notes || [])];
+          const notesMatch = notes.some(n => n.toLowerCase().includes(q));
+          const subfamMatch = (SUBFAMILIES_BY_ID[f.primary_subfamily_id]?.name_uk || '').toLowerCase().includes(q);
+          return nameMatch || brandMatch || notesMatch || subfamMatch;
+        });
+      }
+
+      input.addEventListener('focus', () => {
+        const results = filterFragrances(input.value);
+        renderSuggestions(results);
+      });
+
+      input.addEventListener('input', () => {
+        const val = input.value;
+        clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+        const results = filterFragrances(val);
+        renderSuggestions(results);
+      });
+
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        clearBtn.style.display = 'none';
+        list.style.display = 'none';
+        if (select) select.value = '';
+        selectSubfamily('floral_pure');
+      });
+
+      input.addEventListener('keydown', (e) => {
+        const items = list.querySelectorAll('.autocomplete-item');
+        if (!items.length || list.style.display === 'none') return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          activeIndex = (activeIndex + 1) % items.length;
+          updateActiveItem(items);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          activeIndex = (activeIndex - 1 + items.length) % items.length;
+          updateActiveItem(items);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (activeIndex >= 0 && activeIndex < items.length) {
+            items[activeIndex].click();
+          } else if (items.length > 0) {
+            items[0].click();
+          }
+        } else if (e.key === 'Escape') {
+          list.style.display = 'none';
+        }
+      });
+
+      function updateActiveItem(items) {
+        items.forEach((it, idx) => {
+          if (idx === activeIndex) {
+            it.classList.add('selected');
+            it.scrollIntoView({ block: 'nearest' });
+          } else {
+            it.classList.remove('selected');
+          }
+        });
+      }
+
+      // Закриття випадаючого списку при кліку поза полем пошуку
+      document.addEventListener('click', (e) => {
+        const container = document.getElementById('searchBoxContainer');
+        if (container && !container.contains(e.target)) {
+          list.style.display = 'none';
+        }
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
 
     // Малювання SVG Колеса (14 секторів)
@@ -745,7 +1081,14 @@
           if (activeSf) updateCenterInfo(activeSf);
         });
         path.addEventListener('click', () => {
-          document.getElementById('perfumeSelect').value = '';
+          const select = document.getElementById('perfumeSelect');
+          const input = document.getElementById('perfumeInput');
+          const clearBtn = document.getElementById('clearSearchBtn');
+          const list = document.getElementById('autocompleteList');
+          if (select) select.value = '';
+          if (input) input.value = '';
+          if (clearBtn) clearBtn.style.display = 'none';
+          if (list) list.style.display = 'none';
           selectSubfamily(sf.id);
         });
 
