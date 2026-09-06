@@ -17,6 +17,28 @@ python3 run.py
 
 ---
 
+## ☁️ Хмарний деплой для онлайн-тестування
+
+Проєкт містить готові конфігурації для безкоштовного розгортання в хмарі:
+
+### 1. 🚀 Деплой на Render.com (Рекомендовано для повноцінного Python бекенду)
+* У репозиторії налаштовано [`render.yaml`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/render.yaml) (Blueprint).
+* Авторизуйтесь на [Render.com](https://render.com) через GitHub.
+* Натисніть **New +** -> **Blueprint**, виберіть ваш репозиторій.
+* Render автоматично розпізнає конфігурацію, встановить залежності та підніме веб-сервер з живою БД!
+
+### 2. ▲ Деплой на Vercel (Serverless Python + Static)
+* У репозиторії налаштовано [`vercel.json`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/vercel.json) та серверлес-точка входу [`api/index.py`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/api/index.py).
+* На [Vercel.com](https://vercel.com) виберіть **Add New...** -> **Project** -> імпортуйте ваш GitHub репозиторій.
+* Натисніть **Deploy**. Vercel створить швидку глобальну версію додатку.
+
+### 3. 📄 GitHub Pages (Миттєве тестування без серверів)
+* У налаштуваннях репозиторію на GitHub перейдіть у **Settings** -> **Pages**.
+* Оберіть гілку **`main`** та папку **`/docs`**, натисніть **Save**.
+* Додаток буде доступний онлайн за адресою: `https://<user>.github.io/<repo>/`.
+
+---
+
 ## 🎯 Як працює алгоритм підбору
 
 Колесо Майкла Едвардса розбите на 14 підгруп, розташованих на дискретному кільці з циклічною відстанню:
