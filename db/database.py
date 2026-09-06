@@ -15,6 +15,15 @@ from ..core.wheel_topology import FAMILIES, SUBFAMILIES
 
 # Шлях до бази за замовчуванням (локальний файл поруч із проектом)
 DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "fragrances.db"
+
+# На Vercel / AWS Lambda коренева папка read-only, тому використовуємо /tmp якщо немає прав запису
+try:
+    test_file = DEFAULT_DB_PATH.parent / ".write_test"
+    test_file.touch()
+    test_file.unlink()
+except (PermissionError, OSError):
+    DEFAULT_DB_PATH = Path("/tmp") / "fragrances.db"
+
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_DB_PATH}")
 
 # Створення engine
