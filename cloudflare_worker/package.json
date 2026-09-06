@@ -1,0 +1,28 @@
+{
+  "name": "fragrance-wheel-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for Fragrance Wheel Matcher: Edge API, D1 Edge SQLite, and scheduled scraping with Cloudflare Browser Rendering",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "d1:create": "wrangler d1 create fragrance-wheel-db",
+    "d1:migrate": "wrangler d1 execute fragrance-wheel-db --file=./schema.sql",
+    "d1:seed": "wrangler d1 execute fragrance-wheel-db --file=./seed_d1.sql"
+  },
+  "dependencies": {
+    "@cloudflare/puppeteer": "^0.0.14"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  },
+  "keywords": [
+    "fragrance-wheel",
+    "cloudflare-workers",
+    "d1",
+    "puppeteer",
+    "scraper"
+  ],
+  "author": "Yukhym Shulha",
+  "license": "MIT"
+}

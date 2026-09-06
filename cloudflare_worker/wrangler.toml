@@ -1,0 +1,25 @@
+name = "fragrance-wheel-worker"
+main = "src/index.js"
+compatibility_date = "2024-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Вбудований хмарний Chromium (Cloudflare Browser Rendering)
+# Безкоштовно 10 хв/день для Workers
+[browser]
+binding = "MYBROWSER"
+
+# Безсерверна реляційна база даних Cloudflare D1 (Edge SQLite)
+[[d1_databases]]
+binding = "DB"
+database_name = "fragrance-wheel-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# Розклад для фонового запуску парсингу brocard.ua
+# Щопонеділка о 03:00 ранку UTC
+[triggers]
+crons = ["0 3 * * 1"]
+
+# Налаштування воркера
+[vars]
+CRAWL_MAX_PRODUCTS = "30"
+ADMIN_SECRET = "fragrance_wheel_secure_token"

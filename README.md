@@ -84,6 +84,9 @@ $$\text{CircularDistance}(i, j) = \min(|i - j|, 14 - |i - j|)$$
    * Парсер українських описів піраміди («Початкова нота», «Нота серця», «Кінцева нота»).
 2. **`core/pyramid_classifier.py`:**
    * Нормалізатор українських та англійських назв нот до 14 підгруп Колеса.
+3. **`cloudflare_worker/`:**
+   * Повноцінний хмарний воркер з **Cloudflare Browser Rendering** (`@cloudflare/puppeteer`) для фонового оновлення каталогу за розкладом (Cron Trigger щопонеділка) без зовнішніх серверів.
+   * Безсерверна Edge база даних **Cloudflare D1** (Edge SQLite). Детальніше див. [`cloudflare_worker/README.md`](file:///Users/yukhymshulha/Library/Mobile%20Documents/iCloud~md~obsidian/Documents/Slamnom%20notes/fragrance_matcher/cloudflare_worker/README.md).
 
 ---
 
