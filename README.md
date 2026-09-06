@@ -95,3 +95,10 @@ python3 fragrance_matcher/tests/test_classifier.py
 python3 fragrance_matcher/tests/test_pipeline.py
 python3 fragrance_matcher/tests/test_api.py
 ```
+
+---
+
+## 📜 Ліцензія
+
+Проєкт розповсюджується під ліцензією [MIT](LICENSE). © 2026 Yukhym Shulha.
+
