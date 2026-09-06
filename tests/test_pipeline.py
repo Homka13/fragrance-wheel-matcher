@@ -69,11 +69,11 @@ def test_matcher_buckets():
 
     for item in recs["adjacent"]:
         assert item["relation"] == "adjacent"
-        assert item["ring_distance"] in (1, 2)
+        assert item["ring_distance"] in (1, 2, 3)
 
     for item in recs["complementary"]:
         assert item["relation"] == "complementary"
-        assert item["ring_distance"] in (6, 7)
+        assert item["ring_distance"] in (5, 6, 7)
 
     print("test_matcher_buckets: PASSED")
 

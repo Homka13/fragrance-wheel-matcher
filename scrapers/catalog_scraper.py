@@ -172,3 +172,31 @@ async def run_playwright_scraper(target_urls: List[str], output_json_path: str):
         logger.info(f"Збережено {len(results)} парфумів у {output_json_path}")
 
     return results
+
+
+DEFAULT_BROCARD_TARGETS = [
+    "https://www.brocard.ua/ua/product/parfumovana-voda-lancome-la-vie-est-belle",
+    "https://www.brocard.ua/ua/product/parfumovana-voda-lancome-idole",
+    "https://www.brocard.ua/ua/product/parfumovana-voda-lancome-tresor",
+    "https://www.brocard.ua/ua/product/parfumovana-voda-carolina-herrera-good-girl",
+    "https://www.brocard.ua/ua/product/parfumovana-voda-carolina-herrera-very-good-girl",
+    "https://www.brocard.ua/ua/product/tualetna-voda-carolina-herrera-bad-boy",
+    "https://www.brocard.ua/ua/product/chanel-coco-mademoiselle",
+    "https://www.brocard.ua/ua/product/chanel-bleu-de-chanel",
+    "https://www.brocard.ua/ua/product/tom-ford-tobacco-vanille",
+    "https://www.brocard.ua/ua/product/tom-ford-oud-wood",
+    "https://www.brocard.ua/ua/product/tom-ford-lost-cherry",
+    "https://www.brocard.ua/ua/product/yves-saint-laurent-black-opium",
+    "https://www.brocard.ua/ua/product/yves-saint-laurent-libre",
+    "https://www.brocard.ua/ua/product/dior-sauvage",
+    "https://www.brocard.ua/ua/product/dior-fahrenheit",
+    "https://www.brocard.ua/ua/product/giorgio-armani-acqua-di-gio",
+    "https://www.brocard.ua/ua/product/maison-francis-kurkdjian-baccarat-rouge-540",
+    "https://www.brocard.ua/ua/product/kilian-angels-share"
+]
+
+if __name__ == "__main__":
+    import asyncio
+    output_file = "data/scraped_catalog.json"
+    print("Запуск скрапера для збору карток з каталогу Brocard...")
+    asyncio.run(run_playwright_scraper(DEFAULT_BROCARD_TARGETS, output_file))
