@@ -282,7 +282,7 @@
       color: var(--text-main);
     }
 
-    /* SVG Колесо */
+    /* SVG Обертове Колесо (Rotary Wheel Dial) */
     .wheel-container {
       position: relative;
       width: 380px;
@@ -290,40 +290,211 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+    .wheel-container.grabbing {
+      cursor: grabbing;
     }
     #wheelSvg {
       width: 100%;
       height: 100%;
-      filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+      filter: drop-shadow(0 0 24px rgba(0, 0, 0, 0.6));
     }
+    .wheel-rotator {
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    /* Верхня стрілка-покажчик активного акорду */
+    .wheel-pointer {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+    }
+    .pointer-needle {
+      width: 0;
+      height: 0;
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+      border-top: 15px solid #e879f9;
+      filter: drop-shadow(0 0 8px rgba(232, 121, 249, 0.95));
+      animation: needleBob 2s infinite ease-in-out;
+    }
+    .pointer-label {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #e879f9;
+      background: rgba(14, 18, 28, 0.92);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      border: 1px solid rgba(232, 121, 249, 0.4);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    @keyframes needleBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(3px); }
+    }
+
     .sector-slice {
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transition: opacity 0.3s ease, filter 0.3s ease, stroke-width 0.3s ease;
       stroke: #0a0d14;
       stroke-width: 2px;
     }
     .sector-slice:hover {
-      filter: brightness(1.25);
+      filter: brightness(1.28);
     }
     .sector-slice.active {
       stroke: #ffffff;
-      stroke-width: 3px;
-      filter: drop-shadow(0 0 8px currentColor) brightness(1.3);
+      stroke-width: 3.5px;
+      filter: drop-shadow(0 0 10px currentColor) brightness(1.35);
     }
     .sector-slice.adjacent {
-      opacity: 0.9;
-      stroke: rgba(255, 255, 255, 0.6);
+      opacity: 0.92;
+      stroke: rgba(255, 255, 255, 0.65);
       stroke-width: 2px;
     }
     .sector-slice.complementary {
-      opacity: 0.9;
+      opacity: 0.92;
       stroke: #ffffff;
       stroke-width: 2px;
       stroke-dasharray: 4, 3;
     }
     .sector-slice.dimmed {
-      opacity: 0.25;
+      opacity: 0.28;
     }
+
+    .sector-label {
+      font-family: inherit;
+      font-size: 7.5px;
+      font-weight: 700;
+      fill: #ffffff;
+      pointer-events: none;
+      text-anchor: middle;
+      dominant-baseline: central;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+      letter-spacing: 0.2px;
+    }
+
+    /* Панель підкручування акордів */
+    .tuning-bar {
+      width: 100%;
+      margin-top: 0.9rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .tuning-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .tune-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .tune-btn:hover {
+      background: rgba(232, 121, 249, 0.2);
+      border-color: #e879f9;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .tune-btn:active {
+      transform: translateY(1px);
+    }
+    .tune-icon {
+      font-size: 0.95rem;
+      line-height: 1;
+      color: #e879f9;
+    }
+    .tune-hint {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .tune-hint-icon {
+      font-size: 0.85rem;
+    }
+
+    /* Фокус піраміди */
+    .pyramid-focus-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 0.6rem;
+    }
+    .focus-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .focus-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .focus-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      padding: 0.3rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.74rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .focus-pill:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #fff;
+    }
+    .focus-pill.active {
+      background: rgba(232, 121, 249, 0.22);
+      border-color: #e879f9;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 0 10px rgba(232, 121, 249, 0.25);
+    }
+    .pyramid-line.focused {
+      background: rgba(232, 121, 249, 0.18);
+      border-left: 2px solid #e879f9;
+      padding-left: 5px;
+      border-radius: 3px;
+    }
+
 
     /* Центральний інфо-круг */
     .wheel-center-info {
@@ -632,13 +803,50 @@
         </div>
       </div>
 
-      <!-- Інтерактивне Колесо SVG -->
-      <div class="wheel-container">
-        <svg id="wheelSvg" viewBox="-200 -200 400 400"></svg>
+      <!-- Інтерактивне Обертове Колесо SVG -->
+      <div class="wheel-container" id="wheelContainer">
+        <!-- Верхній ольфакторний індикатор (активний акорд) -->
+        <div class="wheel-pointer" id="wheelPointer" title="Поточний акорд під стрілкою">
+          <div class="pointer-needle"></div>
+          <div class="pointer-label">АКТИВНИЙ АКОРД</div>
+        </div>
+
+        <svg id="wheelSvg" viewBox="-200 -200 400 400">
+          <!-- Група, що обертається навколо центру (0, 0) -->
+          <g id="wheelRotator" class="wheel-rotator"></g>
+        </svg>
+
         <div class="wheel-center-info" id="wheelCenter">
           <div class="center-family" id="centerFamily">Сімейство</div>
           <div class="center-name" id="centerName">Оберіть акорд</div>
-          <div class="center-notes" id="centerNotes">Натисніть на сектор колеса</div>
+          <div class="center-notes" id="centerNotes">Крутіть або клікайте колесо</div>
+        </div>
+      </div>
+
+      <!-- Панель підкручування та тонкого налаштування -->
+      <div class="tuning-bar">
+        <div class="tuning-row">
+          <button type="button" class="tune-btn" id="tunePrevBtn" title="Підкрутити проти годинникової стрілки">
+            <span class="tune-icon">↺</span> Попередній
+          </button>
+          <div class="tune-hint">
+            <span class="tune-hint-icon">🎡</span>
+            <span>Крутіть мишкою або тачем</span>
+          </div>
+          <button type="button" class="tune-btn" id="tuneNextBtn" title="Підкрутити за годинниковою стрілкою">
+            Наступний <span class="tune-icon">↻</span>
+          </button>
+        </div>
+
+        <!-- Фільтр фокусу розкриття піраміди -->
+        <div class="pyramid-focus-container">
+          <div class="focus-label">Підкрутити фокус піраміди:</div>
+          <div class="focus-pills" id="focusPills">
+            <button type="button" class="focus-pill active" data-focus="all">✨ Гармонійний баланс</button>
+            <button type="button" class="focus-pill" data-focus="top">🍋 Свіжий старт</button>
+            <button type="button" class="focus-pill" data-focus="heart">🌸 Характер (Серце)</button>
+            <button type="button" class="focus-pill" data-focus="base">🪵 Стійкий шлейф</button>
+          </div>
         </div>
       </div>
 
@@ -715,6 +923,14 @@
     let isServerMode = false;
     let currentSelectedId = 'floral_pure';
     let currentRecommendations = { exact: [], adjacent: [], complementary: [] };
+
+    // Стан інтерактивного обертання колеса
+    let currentRotation = 0;
+    let isDraggingWheel = false;
+    let startPointerAngle = 0;
+    let startRotation = 0;
+    let hasDragged = false;
+    let activePyramidFocus = 'all'; // 'all', 'top', 'heart', 'base'
 
     const SUBFAMILIES_BY_ID = {};
     subfamilies.forEach(sf => { SUBFAMILIES_BY_ID[sf.id] = sf; });
@@ -795,11 +1011,6 @@
 
       return buckets;
     }
-    let subfamilies = [];
-    let families = {};
-    let allFragrances = [];
-    let currentSelectedId = 'floral_pure';
-    let currentRecommendations = { exact: [], adjacent: [], complementary: [] };
 
     // Завантаження структури колеса та каталогу
     async function initApp() {
@@ -811,17 +1022,20 @@
             testRes.json(),
             fetch('/api/fragrances').then(r => r.json())
           ]);
-          subfamilies = (wheelData.subfamilies && wheelData.subfamilies.length) ? wheelData.subfamilies : EMBEDDED_SUBFAMILIES;
-          families = (wheelData.families && Object.keys(wheelData.families).length) ? wheelData.families : EMBEDDED_FAMILIES;
-          allFragrances = (fragData && fragData.fragrances && fragData.fragrances.length) ? fragData.fragrances : EMBEDDED_FRAGRANCES;
+          if (wheelData.subfamilies && wheelData.subfamilies.length) {
+            subfamilies = wheelData.subfamilies;
+          }
+          if (wheelData.families && Object.keys(wheelData.families).length) {
+            families = wheelData.families;
+          }
+          if (fragData && fragData.fragrances && fragData.fragrances.length) {
+            allFragrances = fragData.fragrances;
+          }
         } else {
           throw new Error('API unavailable');
         }
       } catch (err) {
         isServerMode = false;
-        subfamilies = EMBEDDED_SUBFAMILIES;
-        families = EMBEDDED_FAMILIES;
-        allFragrances = EMBEDDED_FRAGRANCES;
       }
 
       // Додатковий захист від порожніх даних (наприклад, у Vercel Serverless)
@@ -835,10 +1049,14 @@
         families = EMBEDDED_FAMILIES;
       }
 
+      subfamilies.forEach(sf => { SUBFAMILIES_BY_ID[sf.id] = sf; });
+
       document.getElementById('catalogCount').innerText = allFragrances.length;
       populatePerfumeSelect();
       initSearchInput();
       renderSvgWheel();
+      initWheelRotation();
+      initTuningControls();
       selectSubfamily('floral_pure');
     }
 
@@ -1035,19 +1253,22 @@
         .replace(/"/g, '&quot;');
     }
 
-    // Малювання SVG Колеса (14 секторів)
+    // Малювання SVG Обертового Колеса (14 секторів всередині wheelRotator)
     function renderSvgWheel() {
-      const svg = document.getElementById('wheelSvg');
-      svg.innerHTML = '';
+      const rotator = document.getElementById('wheelRotator');
+      if (!rotator) return;
+      rotator.innerHTML = '';
 
       const n = subfamilies.length;
       const angleStep = (2 * Math.PI) / n;
       const outerR = 190;
       const innerR = 85;
+      const labelR = 140;
 
       subfamilies.forEach((sf, i) => {
         const startAngle = i * angleStep - Math.PI / 2;
         const endAngle = (i + 1) * angleStep - Math.PI / 2;
+        const midAngle = (startAngle + endAngle) / 2;
 
         const x1 = outerR * Math.cos(startAngle);
         const y1 = outerR * Math.sin(startAngle);
@@ -1067,20 +1288,29 @@
           Z
         `;
 
+        const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        group.setAttribute('id', `group_${sf.id}`);
+
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', d);
         path.setAttribute('fill', sf.color_hex);
         path.setAttribute('class', 'sector-slice');
         path.setAttribute('id', `sector_${sf.id}`);
         path.dataset.subfamilyId = sf.id;
+        path.dataset.index = i;
 
         // Події миші
-        path.addEventListener('mouseenter', () => updateCenterInfo(sf));
-        path.addEventListener('mouseleave', () => {
-          const activeSf = subfamilies.find(s => s.id === currentSelectedId);
-          if (activeSf) updateCenterInfo(activeSf);
+        path.addEventListener('mouseenter', () => {
+          if (!isDraggingWheel) updateCenterInfo(sf);
         });
-        path.addEventListener('click', () => {
+        path.addEventListener('mouseleave', () => {
+          if (!isDraggingWheel) {
+            const activeSf = subfamilies.find(s => s.id === currentSelectedId);
+            if (activeSf) updateCenterInfo(activeSf);
+          }
+        });
+        path.addEventListener('click', (e) => {
+          if (hasDragged) return;
           const select = document.getElementById('perfumeSelect');
           const input = document.getElementById('perfumeInput');
           const clearBtn = document.getElementById('clearSearchBtn');
@@ -1089,11 +1319,57 @@
           if (input) input.value = '';
           if (clearBtn) clearBtn.style.display = 'none';
           if (list) list.style.display = 'none';
-          selectSubfamily(sf.id);
+          selectSubfamily(sf.id, null, true);
         });
 
-        svg.appendChild(path);
+        group.appendChild(path);
+
+        // Радіальний підпис назви підгрупи на секторі
+        const lx = labelR * Math.cos(midAngle);
+        const ly = labelR * Math.sin(midAngle);
+        let rotDeg = (midAngle * 180) / Math.PI;
+        if (rotDeg > 90 || rotDeg < -90) {
+          rotDeg += 180;
+        }
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', lx);
+        text.setAttribute('y', ly);
+        text.setAttribute('transform', `rotate(${rotDeg} ${lx} ${ly})`);
+        text.setAttribute('class', 'sector-label');
+        text.textContent = sf.name_uk;
+
+        group.appendChild(text);
+        rotator.appendChild(group);
       });
+    }
+
+    // Розрахунок найкоротшого шляху обертання
+    function getShortestRotation(current, targetDeg) {
+      const normCurrent = ((current % 360) + 360) % 360;
+      const normTarget = ((targetDeg % 360) + 360) % 360;
+      let diff = normTarget - normCurrent;
+      if (diff > 180) diff -= 360;
+      if (diff < -180) diff += 360;
+      return current + diff;
+    }
+
+    // Плавний поворот обраного сектора до верхньої стрілки
+    function rotateToSector(sectorIndex, animate = true) {
+      const n = subfamilies.length;
+      const step = 360 / n;
+      const targetDeg = - (sectorIndex + 0.5) * step;
+      const rotator = document.getElementById('wheelRotator');
+      if (!rotator) return;
+
+      if (animate) {
+        rotator.style.transition = 'transform 0.55s cubic-bezier(0.16, 1, 0.3, 1)';
+      } else {
+        rotator.style.transition = 'none';
+      }
+
+      currentRotation = getShortestRotation(currentRotation, targetDeg);
+      rotator.style.transform = `rotate(${currentRotation}deg)`;
     }
 
     // Оновлення тексту в центрі колеса
@@ -1104,15 +1380,10 @@
       document.getElementById('centerNotes').innerText = (sf.key_ingredients || []).slice(0, 4).join(', ');
     }
 
-    // Вибір підгрупи та оновлення підсвітки секторів
-    async function selectSubfamily(subfamilyId, referenceFragranceId = null) {
-      currentSelectedId = subfamilyId;
+    // Лише підсвітка секторів (без повороту колеса під час перетягування)
+    function highlightSectorsOnly(subfamilyId) {
       const activeSf = subfamilies.find(s => s.id === subfamilyId);
       if (!activeSf) return;
-
-      updateCenterInfo(activeSf);
-
-      // Підсвітка секторів
       const n = subfamilies.length;
       const currentIdx = activeSf.ring_index;
 
@@ -1135,9 +1406,144 @@
           elem.classList.add('dimmed');
         }
       });
+    }
+
+    // Вибір підгрупи, вирівнювання стрілкою та оновлення підбору
+    async function selectSubfamily(subfamilyId, referenceFragranceId = null, shouldRotate = true) {
+      currentSelectedId = subfamilyId;
+      const activeSf = subfamilies.find(s => s.id === subfamilyId);
+      if (!activeSf) return;
+
+      updateCenterInfo(activeSf);
+      highlightSectorsOnly(subfamilyId);
+
+      if (shouldRotate) {
+        rotateToSector(activeSf.ring_index, true);
+      }
 
       // Запит до бекенду на підбір
       await fetchRecommendations(subfamilyId, referenceFragranceId);
+    }
+
+    // Інтерактивне обертання мишкою / пальцем (Drag & Touch Rotation)
+    function initWheelRotation() {
+      const container = document.getElementById('wheelContainer');
+      const rotator = document.getElementById('wheelRotator');
+      if (!container || !rotator) return;
+
+      let startX = 0;
+      let startY = 0;
+      let lastSectorIdx = -1;
+
+      container.addEventListener('pointerdown', (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+
+        const rect = container.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+
+        // Якщо клік усередині центрального круга (r < 75px), не запускаємо поворот
+        if (dist < 75) return;
+
+        isDraggingWheel = true;
+        hasDragged = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        startPointerAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+        startRotation = currentRotation;
+
+        rotator.style.transition = 'none';
+        container.classList.add('grabbing');
+        try { container.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+
+      container.addEventListener('pointermove', (e) => {
+        if (!isDraggingWheel) return;
+
+        const rect = container.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+
+        const currentPointerAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+        const delta = currentPointerAngle - startPointerAngle;
+
+        if (Math.abs(delta) > 1.5 || Math.hypot(e.clientX - startX, e.clientY - startY) > 5) {
+          hasDragged = true;
+        }
+
+        currentRotation = startRotation + delta;
+        rotator.style.transform = `rotate(${currentRotation}deg)`;
+
+        // Визначаємо сектор під верхньою стрілкою (12 годин)
+        const n = subfamilies.length;
+        const step = 360 / n;
+        const norm = (((-currentRotation) % 360) + 360) % 360;
+        const idx = Math.floor(norm / step) % n;
+
+        if (idx !== lastSectorIdx && subfamilies[idx]) {
+          lastSectorIdx = idx;
+          highlightSectorsOnly(subfamilies[idx].id);
+          updateCenterInfo(subfamilies[idx]);
+        }
+      });
+
+      const endDrag = (e) => {
+        if (!isDraggingWheel) return;
+        isDraggingWheel = false;
+        container.classList.remove('grabbing');
+        try { container.releasePointerCapture(e.pointerId); } catch (_) {}
+
+        if (hasDragged) {
+          const n = subfamilies.length;
+          const step = 360 / n;
+          const norm = (((-currentRotation) % 360) + 360) % 360;
+          const targetIdx = Math.floor(norm / step) % n;
+          const sf = subfamilies[targetIdx];
+          if (sf) {
+            rotateToSector(targetIdx, true);
+            selectSubfamily(sf.id, null, false);
+          }
+        }
+      };
+
+      container.addEventListener('pointerup', endDrag);
+      container.addEventListener('pointercancel', endDrag);
+    }
+
+    // Кнопки покрокового підкручування та фільтр піраміди
+    function initTuningControls() {
+      const prevBtn = document.getElementById('tunePrevBtn');
+      const nextBtn = document.getElementById('tuneNextBtn');
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          const n = subfamilies.length;
+          const curIdx = subfamilies.findIndex(s => s.id === currentSelectedId);
+          const prevIdx = (curIdx - 1 + n) % n;
+          selectSubfamily(subfamilies[prevIdx].id, null, true);
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          const n = subfamilies.length;
+          const curIdx = subfamilies.findIndex(s => s.id === currentSelectedId);
+          const nextIdx = (curIdx + 1) % n;
+          selectSubfamily(subfamilies[nextIdx].id, null, true);
+        });
+      }
+
+      // Кнопки пірамідного фокусу
+      const pills = document.querySelectorAll('.focus-pill');
+      pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+          pills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          activePyramidFocus = pill.dataset.focus || 'all';
+          renderRecommendations();
+        });
+      });
     }
 
     // Запит рекомендацій
@@ -1189,7 +1595,21 @@
         return;
       }
 
-      list.forEach(item => {
+      let displayList = [...list];
+      if (activePyramidFocus !== 'all') {
+        displayList.sort((a, b) => {
+          const getNotesCount = (item) => {
+            const f = item.fragrance;
+            if (activePyramidFocus === 'top') return (f.top_notes || []).length;
+            if (activePyramidFocus === 'heart') return (f.heart_notes || []).length;
+            if (activePyramidFocus === 'base') return (f.base_notes || []).length;
+            return 0;
+          };
+          return getNotesCount(b) - getNotesCount(a) || (b.score - a.score);
+        });
+      }
+
+      displayList.forEach(item => {
         const f = item.fragrance;
         const scorePercent = Math.round(item.score * 100);
         const sfColor = item.target_subfamily?.color_hex || '#e879f9';
@@ -1198,36 +1618,40 @@
         const heartNotes = (f.heart_notes || []).slice(0, 3).join(', ') || '—';
         const baseNotes = (f.base_notes || []).slice(0, 3).join(', ') || '—';
 
+        const isTopFocused = activePyramidFocus === 'top';
+        const isHeartFocused = activePyramidFocus === 'heart';
+        const isBaseFocused = activePyramidFocus === 'base';
+
         const card = document.createElement('div');
         card.className = 'fragrance-card';
         card.innerHTML = `
           <div>
             <div class="card-top">
-              <span class="card-brand">${f.brand_name}</span>
+              <span class="card-brand">${escapeHtml(f.brand_name)}</span>
               <span class="card-score" style="color: ${sfColor}; border: 1px solid ${sfColor}40;">${scorePercent}% збіг</span>
             </div>
-            <h4 class="card-name">${f.name}</h4>
-            <div class="card-concentration">${f.concentration || 'Eau de Parfum'} • ${item.target_subfamily?.name_uk || ''}</div>
+            <h4 class="card-name">${escapeHtml(f.name)}</h4>
+            <div class="card-concentration">${escapeHtml(f.concentration || 'Eau de Parfum')} • ${escapeHtml(item.target_subfamily?.name_uk || '')}</div>
             
             <div class="pyramid-box">
-              <div class="pyramid-line">
-                <span class="pyramid-label">Верх:</span>
-                <span class="pyramid-values" title="${topNotes}">${topNotes}</span>
+              <div class="pyramid-line ${isTopFocused ? 'focused' : ''}">
+                <span class="pyramid-label">${isTopFocused ? '▶ Верх:' : 'Верх:'}</span>
+                <span class="pyramid-values" title="${escapeHtml(topNotes)}">${escapeHtml(topNotes)}</span>
               </div>
-              <div class="pyramid-line">
-                <span class="pyramid-label">Серце:</span>
-                <span class="pyramid-values" title="${heartNotes}">${heartNotes}</span>
+              <div class="pyramid-line ${isHeartFocused ? 'focused' : ''}">
+                <span class="pyramid-label">${isHeartFocused ? '▶ Серце:' : 'Серце:'}</span>
+                <span class="pyramid-values" title="${escapeHtml(heartNotes)}">${escapeHtml(heartNotes)}</span>
               </div>
-              <div class="pyramid-line">
-                <span class="pyramid-label">База:</span>
-                <span class="pyramid-values" title="${baseNotes}">${baseNotes}</span>
+              <div class="pyramid-line ${isBaseFocused ? 'focused' : ''}">
+                <span class="pyramid-label">${isBaseFocused ? '▶ База:' : 'База:'}</span>
+                <span class="pyramid-values" title="${escapeHtml(baseNotes)}">${escapeHtml(baseNotes)}</span>
               </div>
             </div>
           </div>
 
           <div class="card-bottom">
             <span class="card-price">${f.price_uah ? f.price_uah.toLocaleString('uk-UA') + ' ₴' : 'В каталозі'}</span>
-            <a href="${f.product_url || '#'}" target="_blank" rel="noopener" class="card-link">Детальніше ↗</a>
+            <a href="${escapeHtml(f.product_url || '#')}" target="_blank" rel="noopener" class="card-link">Детальніше ↗</a>
           </div>
         `;
         container.appendChild(card);
