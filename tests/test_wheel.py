@@ -5,15 +5,24 @@ test_wheel.py
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from fragrance_matcher.core.wheel_topology import (
-    calculate_ring_distance,
-    classify_relationship,
-    get_subfamily_relatives,
-    SUBFAMILIES_BY_ID,
-    TOTAL_SUBFAMILIES
-)
+try:
+    from core.wheel_topology import (
+        calculate_ring_distance,
+        classify_relationship,
+        get_subfamily_relatives,
+        SUBFAMILIES_BY_ID,
+        TOTAL_SUBFAMILIES
+    )
+except ImportError:
+    from fragrance_matcher.core.wheel_topology import (
+        calculate_ring_distance,
+        classify_relationship,
+        get_subfamily_relatives,
+        SUBFAMILIES_BY_ID,
+        TOTAL_SUBFAMILIES
+    )
 
 
 def test_circular_distance():

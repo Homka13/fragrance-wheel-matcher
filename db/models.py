@@ -110,8 +110,8 @@ class FragranceModel(Base):
 class RecommendationCacheModel(Base):
     __tablename__ = "recommendation_cache"
 
-    source_fragrance_id = Column(String(100), ForeignKey("fragrances.id", ondelete="CASCADE"), primary_key=True)
-    target_fragrance_id = Column(String(100), ForeignKey("fragrances.id", ondelete="CASCADE"), primary_key=True)
+    source_fragrance_id = Column(String(100), ForeignKey("fragrances.id"), primary_key=True)
+    target_fragrance_id = Column(String(100), ForeignKey("fragrances.id"), primary_key=True)
     match_type = Column(String(20), nullable=False)  # exact, adjacent, complementary
     ring_distance = Column(Integer, nullable=False)
     similarity_score = Column(Float, nullable=False)

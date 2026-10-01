@@ -5,10 +5,13 @@ test_api.py
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from starlette.testclient import TestClient
-from fragrance_matcher.app.main import app
+try:
+    from app.main import app
+except ImportError:
+    from fragrance_matcher.app.main import app
 
 def test_api_endpoints():
     client = TestClient(app)

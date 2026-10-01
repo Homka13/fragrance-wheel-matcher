@@ -24,3 +24,8 @@ Thumbs.db
 *.db-journal
 *.db-wal
 *.db-shm
+
+# Browser cache & screenshots
+.browser_data/
+*.png
+data/test_batch_*.json

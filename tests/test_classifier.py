@@ -5,12 +5,12 @@ test_classifier.py
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from fragrance_matcher.core.pyramid_classifier import (
-    map_note_to_subfamily,
-    classify_pyramid
-)
+try:
+    from core.pyramid_classifier import map_note_to_subfamily, classify_pyramid
+except ImportError:
+    from fragrance_matcher.core.pyramid_classifier import map_note_to_subfamily, classify_pyramid
 
 
 def test_note_mapping():

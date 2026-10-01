@@ -6,6 +6,7 @@ database.py
 
 import os
 from pathlib import Path
+from typing import Optional
 from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -23,8 +24,9 @@ except ImportError:
     except ImportError:
         from fragrance_matcher.core.wheel_topology import FAMILIES, SUBFAMILIES
 
-# Шлях до бази за замовчуванням (локальний файл поруч із проектом)
-DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "fragrances.db"
+# Шлях до бази за замовчуванням (DuckDB для аналітики та швидких ймовірнісних розрахунків)
+DEFAULT_DB_FILE = os.getenv("DB_FILENAME", "fragrances.duckdb")
+DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / DEFAULT_DB_FILE
 
 # На Vercel / AWS Lambda коренева папка read-only, тому використовуємо /tmp якщо немає прав запису
 try:
@@ -32,14 +34,47 @@ try:
     test_file.touch()
     test_file.unlink()
 except (PermissionError, OSError):
-    DEFAULT_DB_PATH = Path("/tmp") / "fragrances.db"
+    DEFAULT_DB_PATH = Path("/tmp") / DEFAULT_DB_FILE
 
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_DB_PATH}")
+DEFAULT_DIALECT = "duckdb" if str(DEFAULT_DB_PATH).endswith(".duckdb") else "sqlite"
+DATABASE_URL = os.getenv("DATABASE_URL", f"{DEFAULT_DIALECT}:///{DEFAULT_DB_PATH}")
 
 # Створення engine
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 engine = create_engine(DATABASE_URL, connect_args=connect_args, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def get_duckdb_con(read_only: bool = False):
+    """
+    Повертає пряме з'єднання з DuckDB для аналітичних розрахунків,
+    матриць ймовірностей, векторних відстаней та швидких агрегацій.
+    """
+    import duckdb
+    duck_path = DEFAULT_DB_PATH if str(DEFAULT_DB_PATH).endswith(".duckdb") else DEFAULT_DB_PATH.with_suffix(".duckdb")
+    return duckdb.connect(str(duck_path), read_only=read_only)
+
+
+def sync_to_sqlite(sqlite_path: Optional[Path] = None):
+    """
+    Синхронізує та експортує дані з DuckDB у файл SQLite (fragrances.db),
+    щоб їх можна було відкривати у графічних програмах, таких як 'DB Browser for SQLite'.
+    """
+    target_sqlite = sqlite_path or (DEFAULT_DB_PATH.parent / "fragrances.db")
+    try:
+        with engine.connect() as conn:
+            conn.exec_driver_sql("INSTALL sqlite; LOAD sqlite;")
+            conn.exec_driver_sql(f"ATTACH '{target_sqlite}' AS sqlite_db (TYPE SQLITE);")
+            for tbl in ["wheel_families", "wheel_subfamilies", "brands", "fragrances"]:
+                try:
+                    conn.exec_driver_sql(f"CREATE OR REPLACE TABLE sqlite_db.{tbl} AS SELECT * FROM {tbl};")
+                except Exception as te:
+                    print(f"Таблиця {tbl} пропущена при синхронізації: {te}")
+            conn.commit()
+            conn.exec_driver_sql("DETACH sqlite_db;")
+        print(f"Дані успішно експортовано в SQLite: {target_sqlite}")
+    except Exception as e:
+        print(f"Помилка експорту в SQLite: {e}")
 
 
 @contextmanager

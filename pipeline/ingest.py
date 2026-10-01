@@ -44,13 +44,13 @@ def slugify_brand(name: str) -> str:
     return re.sub(r"[\s_-]+", "_", clean)
 
 
-def process_and_ingest_records(raw_items: List[Dict]) -> Dict:
+def process_and_ingest_records(raw_items: List[Dict], update_cache: bool = False) -> Dict:
     """
     Головна функція конвеєра:
     1. Валідація Pydantic
     2. Data Quality Gate (перевірка прив'язки до Колеса)
     3. Ідемпотентний Upsert у БД
-    4. Оновлення кешу суміжностей
+    4. Оновлення кешу суміжностей (якщо update_cache=True)
     """
     init_db()
 
@@ -58,6 +58,7 @@ def process_and_ingest_records(raw_items: List[Dict]) -> Dict:
     upserted_count = 0
     skipped_records = []
     validated_list: List[ValidatedFragrance] = []
+    seen_ids = set()
 
     # 1. Валідація та Data Quality Gate
     for item in raw_items:
@@ -107,6 +108,9 @@ def process_and_ingest_records(raw_items: List[Dict]) -> Dict:
             product_url=raw.product_url,
             image_url=raw.image_url
         )
+        if val.id in seen_ids:
+            continue
+        seen_ids.add(val.id)
         validated_list.append(val)
 
     # 2. Збереження у БД (ідемпотентний Upsert)
@@ -156,41 +160,42 @@ def process_and_ingest_records(raw_items: List[Dict]) -> Dict:
 
         session.flush()
 
-        # 3. Оновлення кешу рекомендацій для завантажених парфумів
-        all_frags = session.query(FragranceModel).all()
-        for f1 in all_frags:
-            sf1 = SUBFAMILIES_BY_ID.get(f1.primary_subfamily_id)
-            if not sf1:
-                continue
-            for f2 in all_frags:
-                if f1.id == f2.id:
+        # 3. Оновлення кешу рекомендацій (тільки якщо явно увімкнено)
+        if update_cache:
+            all_frags = session.query(FragranceModel).all()
+            for f1 in all_frags:
+                sf1 = SUBFAMILIES_BY_ID.get(f1.primary_subfamily_id)
+                if not sf1:
                     continue
-                sf2 = SUBFAMILIES_BY_ID.get(f2.primary_subfamily_id)
-                if not sf2:
-                    continue
+                for f2 in all_frags:
+                    if f1.id == f2.id:
+                        continue
+                    sf2 = SUBFAMILIES_BY_ID.get(f2.primary_subfamily_id)
+                    if not sf2:
+                        continue
 
-                dist = calculate_ring_distance(sf1["ring_index"], sf2["ring_index"])
-                match_type = classify_relationship(dist)
-                score = round(max(0.1, 1.0 - (dist / 7.0)), 4)
+                    dist = calculate_ring_distance(sf1["ring_index"], sf2["ring_index"])
+                    match_type = classify_relationship(dist)
+                    score = round(max(0.1, 1.0 - (dist / 7.0)), 4)
 
-                cached = session.query(RecommendationCacheModel).filter_by(
-                    source_fragrance_id=f1.id,
-                    target_fragrance_id=f2.id
-                ).first()
-
-                if cached:
-                    cached.match_type = match_type
-                    cached.ring_distance = dist
-                    cached.similarity_score = score
-                else:
-                    new_cache = RecommendationCacheModel(
+                    cached = session.query(RecommendationCacheModel).filter_by(
                         source_fragrance_id=f1.id,
-                        target_fragrance_id=f2.id,
-                        match_type=match_type,
-                        ring_distance=dist,
-                        similarity_score=score
-                    )
-                    session.add(new_cache)
+                        target_fragrance_id=f2.id
+                    ).first()
+
+                    if cached:
+                        cached.match_type = match_type
+                        cached.ring_distance = dist
+                        cached.similarity_score = score
+                    else:
+                        new_cache = RecommendationCacheModel(
+                            source_fragrance_id=f1.id,
+                            target_fragrance_id=f2.id,
+                            match_type=match_type,
+                            ring_distance=dist,
+                            similarity_score=score
+                        )
+                        session.add(new_cache)
 
     logger.info(f"Пайплайн завершено: всього {total}, збережено {upserted_count}, відхилено Data Quality Gate {len(skipped_records)}")
     return {

@@ -5,12 +5,18 @@ test_pipeline.py
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from fragrance_matcher.pipeline.ingest import process_and_ingest_records
-from fragrance_matcher.core.matcher import find_recommendations
-from fragrance_matcher.db.database import get_db
-from fragrance_matcher.db.models import FragranceModel
+try:
+    from pipeline.ingest import process_and_ingest_records
+    from core.matcher import find_recommendations
+    from db.database import get_db
+    from db.models import FragranceModel
+except ImportError:
+    from fragrance_matcher.pipeline.ingest import process_and_ingest_records
+    from fragrance_matcher.core.matcher import find_recommendations
+    from fragrance_matcher.db.database import get_db
+    from fragrance_matcher.db.models import FragranceModel
 
 
 def test_data_quality_gate():
